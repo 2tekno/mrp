@@ -1,0 +1,146 @@
+include layouts/header
+include userbody
+include mixins/modal-save-record
+include mixins/modal-validation-alert
+
+.container.page-data
+	form.form-horizontal(id="edit_user" name="edit_user" method="post" action="/users/save_edit/" enctype="multipart/form-data")
+		
+		//- .well(style={'margin-top': '70px', 'margin-bottom': '70px'})
+		//- 	input.form-control(type='hidden' id='idx' name='idx' value=data.UserID)
+		//- 	.row
+		//- 		.col-md-12
+		//- 			.btn-group-lg.float-right(role="group")
+		//- 				button.btn.btn-primary.fa.fa-save(type='button' id='submit' data-toggle="modal" data-target=".save-record")
+			
+
+		.div(style={'margin-top': '70px', 'margin-bottom': '70px'})
+			input.form-control(type='hidden' id='idx' name='idx' value=data.UserID)
+			.form-group.form-row(style={'padding-left': '0px', 'padding-right': '0px'})
+				.col-md-12.mygroupheader
+					.h5 USERS
+						.btn-group-sm.float-right(role="group")
+							button.btn.btn-primary.fa.fa-arrow-left#cancel(type='button') 
+							button.btn.btn-primary.fa.fa-save(type='button' data-toggle="modal" data-target=".save-record")
+
+			
+			.editAdSection
+				+userbody(data)
+
+
++modal-save-record
++modal-validation-alert
+
+
+script(type='text/javascript').
+	$(document).ready(function() {
+
+
+		$("body").on("click", "#cancel", cancel);
+		$('#save-confirm').click(function(e){
+			
+			var IsValid = FormValidation();
+			if (!IsValid) {return;}
+			
+			e.preventDefault();
+			needToConfirm = false; 
+			$(window).off("beforeunload")
+			//SaveUser();
+			
+			PreSaveUser();
+		});
+
+		var needToConfirm = false; 
+		$("select,input,textarea").change(function() {
+			needToConfirm = true;
+			console.log('needToConfirm ==' + needToConfirm);
+		});
+		
+		$(window).on("beforeunload", function(e) {
+			console.log('beforeunload');
+
+			if(needToConfirm==true) {
+				var message = "Are you sure you want to leave?";
+				e.returnValue = message;
+				return message;
+			}
+			return;
+		});
+
+
+		function PreSaveUser() {
+
+			var re = /^\w+$/;
+
+			var formData = {
+						'UserName' : $('input[name=UserName]').val(),
+						'Email' : $('input[name=Email]').val(),
+						'Password' : $('input[name=Password]').val(),
+						'ConfirmPassword' : $('input[name=ConfirmPassword]').val()
+			};
+			
+	
+			if(!re.test(formData.UserName)) {
+				alert("Error: Username must contain only letters, numbers and underscores!");
+				//e.preventDefault();
+				return;
+			}
+
+			if(formData.Password = "" || (formData.Password != formData.ConfirmPassword)) {
+				alert("Error: Please check that you've entered and confirmed your password!");
+				return;
+		 	}
+
+			SaveUser();
+
+		};
+
+
+
+
+		function checkPassword(str){
+			// at least one number, one lowercase and one uppercase letter
+			// at least six characters that are letters, numbers or the underscore
+			var re = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])\w{6,}$/;
+			return re.test(str);
+		};
+
+
+		function SaveUser() {
+			var formData =  $("#edit_user").serializeArray();
+			var myList = [];
+			for (var pair of formData.entries()) {
+				var objName = pair[1].name;
+				var objValue;
+				var objIndex;
+				if (objName.startsWith('secLevel')) {
+					objIndex = objName.substring(8, 9);
+					objValue = pair[1].value;  
+					myList.push({"UPGID" : objIndex, "RoleID" : objValue});
+				};
+			};
+			//console.log(JSON.stringify(myList));
+			formData.push({name: "secLevelArray", value: JSON.stringify(myList)});
+			var userID = $('input[name="idx"]').val();
+			var actionurl = '/users/save_edit/'+userID;
+			
+			$.ajax({
+				url: actionurl,
+				type: 'post',
+				data: formData,
+				success: function(data) {
+				console.log('success');
+				window.location = data;
+				},
+				error: function() { console.log('error');}
+			});
+		};
+
+	});
+
+	function cancel() {
+		window.location.href = '/all_users';  
+	};	
+
+
+	

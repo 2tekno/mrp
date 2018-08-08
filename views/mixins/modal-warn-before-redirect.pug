@@ -1,0 +1,15 @@
+mixin modal-warn-before-redirect
+
+	.modal.fade#modal-warn-before-redirect(tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true")
+		.modal-dialog.modal-dialog-centered
+			.modal-content
+				.modal-header
+					.h5.modal-title Are you sure you want to leave the current page?
+				.modal-body
+					| If you click 'OK', you will be redirected.
+				.modal-footer
+					button.btn.btn-primary(type='button' data-dismiss="modal") Cancel
+					button.btn.btn-secondary(type='button' id='confirm-redirect' data-dismiss="modal") OK
+
+
+				

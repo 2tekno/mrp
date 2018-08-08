@@ -1,0 +1,6 @@
+2018-08-08T21:43:03.224Z - debug: Overriding 'Express' logger
+2018-08-08T21:44:23.205Z - error: Error selecting from vwPOrderList table: RequestError: The SELECT permission was denied on the object 'vwPOrderList', database 'MRPTEST', schema 'dbo'. 
+2018-08-08T21:44:39.637Z - error: Error selecting from vwPOrderList table: RequestError: The SELECT permission was denied on the object 'vwPOrderList', database 'MRPTEST', schema 'dbo'. 
+2018-08-08T21:45:00.700Z - error: Error selecting from vwPOrderList table: RequestError: The SELECT permission was denied on the object 'vwPOrderList', database 'MRPTEST', schema 'dbo'. 
+2018-08-08T21:45:05.527Z - error: Error selecting from vwPOrderList table: RequestError: The SELECT permission was denied on the object 'vwPOrderList', database 'MRPTEST', schema 'dbo'. 
+2018-08-08T21:47:08.129Z - debug: Overriding 'Express' logger

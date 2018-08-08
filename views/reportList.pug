@@ -1,0 +1,9 @@
+include layouts/header
+
+
+.container(style={'margin-top':'100px', 'margin-bottom': '70px'})
+
+	ul
+		each item in reports
+			li
+				a(href=ssrs_url + item.ReportName)  #{item.ReportLabel}

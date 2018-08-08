@@ -1,0 +1,27 @@
+mixin topmenu
+
+	nav.navbar.navbar-expand-md.navbar-light.fixed-top
+		.container(style={'margin-left':'0px','padding-left':'0px'})
+			a.navbar-brand(href='/' )
+
+		button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbar5')
+			span.navbar-toggler-icon
+		#navbar5.navbar-collapse.collapse
+			ul.navbar-nav
+
+				li.nav-item
+					a.nav-link(href='/orders')  Orders
+
+			
+			ul.navbar-nav.ml-auto
+				li.nav-item.dropdown
+					a#navbarDropdownMenuLink.nav-link(href='#', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+						i.fa.fa-user-o.fa-lgfa
+					.dropdown-menu.dropdown-menu-right(aria-labelledby='navbarDropdownMenuLink')
+						if (user)
+							a.dropdown-item(href='/logout') Logout
+							if (user.IsAdmin)
+								a.dropdown-item(href='/all_users') Security
+						else
+							a.dropdown-item(href='/login') Login
+

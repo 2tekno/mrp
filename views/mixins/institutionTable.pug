@@ -1,0 +1,32 @@
+mixin institutionTable(contactInstitutions,institutions)
+
+	
+	table#institutionTable.table-bordered(style='width:100%; table-layout:fixed;')
+		thead
+			tr
+				th(style='width:40%') 
+					button.btn.btn-default.btn-sm.fa.fa-plus(type='button'  onClick="addTableRow('institutionTable');") Institution
+				th(style='width:40%') Role
+				th(style='width:10%') Primary
+				th(style='width:10%')
+		tbody
+			tr(style='display:none;')
+				td
+					select(style={width: '100%'} id='institutions' name='institutions' data-placeholder='')
+						each item in institutions
+							option(value=item.InstitutionID) #{item.InstitutionName}
+					td
+						input(type="text" name="Role"  value="" style={'width': '100%'})
+					td
+						input(type="checkbox" name="Primary" id="Primary" checked=false style={'width': '100%'})
+			if (contactInstitutions)
+				each ci in contactInstitutions
+					tr(id = `${ci.ContactInstitutionID}` )
+						td
+							select(style={width: '100%'} id='institutions' name='institutions' data-placeholder='')
+								each item in institutions
+									option(value=item.InstitutionID selected=ci.InstitutionID==item.InstitutionID) #{item.InstitutionName}
+						td
+							input(type="text" name="Role"  value=ci.Role style={'width': '100%'})
+						td
+							input(type="checkbox" name="Primary" id="Primary" checked=(ci.Primary==true ? true : false) style={'width': '100%'})

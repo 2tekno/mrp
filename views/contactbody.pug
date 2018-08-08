@@ -1,0 +1,113 @@
+mixin contactbody(contact)
+
+	fieldset.mygroup
+		legend.mygroup Main
+		.form-group.form-row
+			label.col-sm-2.col-form-label(for='Title' ) Title
+			.col-sm-4
+				select.form-control(id='Sal' name='Sal' data-placeholder='')
+					each item in salutation
+						option(selected= ((contact) ? contact.Sal : '')==item.Sal ) #{item.Sal}
+
+			.col-sm
+				.form-check.pull-right
+					if (contact)
+						if(contact.Inact =='1')
+							input.form-check-input(type='checkbox' style={'bottom': '1px;'} name="Inactive" id="Inactive"  checked=true)
+							| Inactive
+						else
+							input.form-check-input(type='checkbox' style={'bottom': '1px;'} name="Inactive" id="Inactive"  )
+							| Inactive
+
+
+		.form-group.form-row
+			label.col-sm-2.col-form-label(for='FName'  ) 
+				| First Name 
+				span(style='color: red') *
+			.col-sm-4
+				input.form-control(type='text' id='FName' name='FName' value=((contact) ? contact.FName : '')  required )
+		
+			label.col-sm-1.col-form-label(for='LName') 
+				| Last Name 
+				span(style='color: red') *
+			.col-sm-5
+				input.form-control(type='text' id='LName' name='LName' value=((contact) ? contact.LName : '')  required)
+		
+		.form-group.form-row
+			label.col-sm-2.col-form-label(for='JobTitle' ) 
+				| Primary Job Title 
+				span(style='color: red') *
+			.col-sm-10
+				input.form-control(type='text' id='JobTitle' name='JobTitle' value=((contact) ? contact.JobTitle : '')  required  )
+		
+		.form-group.form-row
+			.col
+				+institutionTable(contactInstitutions,institutions)
+			.col
+				+adminAssistantsTable(contacts,adminAssistants)
+		
+	fieldset.mygroup
+		legend.mygroup Details
+		.form-group.form-row
+			.col
+				+contactPhone(contactPhones)
+			.col
+				+contactEmail(contactEmails)
+
+		.form-group.form-row
+			label.col-sm-2.col-form-label(for='Faculty') Faculty/Department
+			.col-sm-10
+				input.form-control(type='text' id='Address1' name='Address1' value=((contact) ? contact.Address1 : '') )
+		.form-group.form-row
+			label.col-sm-2.col-form-label(for='Building' ) Building & Room
+			.col-sm-10
+				input.form-control(type='text' id='Address2' name='Address2' value=((contact) ? contact.Address2 : '')  )
+		
+		.form-group.form-row
+			label.col-sm-2.col-form-label(for='Street' ) Street Address
+			.col-sm-10
+				input.form-control(type='text' id='Address3' name='Address3' value=((contact) ? contact.Address3 : '') )
+		
+		.form-group.form-row
+			label.col-sm-2.col-form-label(for='City' ) 
+				|City 
+				span(style='color: red') *
+			.col-sm-4
+				input.form-control(type='text' id='City' name='City' value=((contact) ? contact.City : '')  required)
+		
+			label.col-sm-1.col-form-label(for='Province' style={'text-align': 'right;'}) 
+				| Province 
+				span(style='color: red') *
+			.col-sm-5
+				select.chosen-select.form-control(id='Province' name='Province[]' data-placeholder='Province ...'  tabindex='4' required)
+					each item in province
+						option(value=item.Province selected=((contact) ? contact.Province.indexOf(item.Province) != -1 : NULL)) #{item.Province}
+
+		.form-group.form-row
+			label.col-sm-2.col-form-label(for='PostalCode' ) Postal Code
+			.col-sm-4
+				input.form-control(type='text' id='PostalCode' name='PostalCode' value=((contact) ? contact.PostalCode : '')  )
+			label.col-sm-1.col-form-label(for='Country' style={'text-align': 'right;'}) Country
+			.col-sm-5
+				input.form-control(type='text' id='Country' name='Country' value=((contact) ? contact.Country : '')  )
+
+
+
+
+	fieldset.mygroup
+		legend.mygroup Additional Info
+
+		.form-group.form-row
+			.col-12
+				+contactProjectTable(contactProjects)
+		.form-group.form-row
+			.col-6
+				+assistantForTable(assistantFor)
+			.col-6
+				+contactGroupsTable(contactGroups,groups)
+
+
+		.form-group.form-row
+			label.col-sm-2.col-form-label(for='Notes' ) Notes
+			textarea.form-control(rows='4' id='Notes' name='Notes')
+				| #{((contact) ? contact.Notes : '')}	

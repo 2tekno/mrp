@@ -1,0 +1,17 @@
+mixin childInstitutionsTable(childInstitutions)
+
+	
+	table#childInstitutionsTable.table-bordered(style='width:100%; table-layout:fixed;')
+		thead
+			tr
+				th(style='width:100%') Child Institutions
+		tbody
+
+
+			if (childInstitutions)
+				each item in childInstitutions
+					tr
+						td #{item.InstitutionName}
+
+
+

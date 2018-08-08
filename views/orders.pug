@@ -1,0 +1,74 @@
+include layouts/header
+
+.container(style={'margin-top':'80px', 'margin-bottom': '70px'})
+	
+	.row
+
+		.col-sm-12(style={'margin-top':'10px'})
+			button.btn.btn-primary.btn-sm#addNewProject(type='button' name='addNewProject') Add New
+		.col-sm-12(style={'margin-top':'10px'})
+			table#allOrdersTable.row-border.hover.order-column
+				thead
+					tr
+						th OrderNo
+						th Order Date
+						th Name
+						th Total
+
+						th
+					tbody
+
+
+
+
+script(type='text/javascript').
+	$(document).ready(function() {
+
+
+		$('#addNewOrder').click(function(e){   window.location.href = '/orders/add';  });
+
+		var table = $('#allOrdersTable').DataTable( {
+				"lengthMenu": [[25, 50, -1], [25, 50, "All"]],
+				"bPaginate": true,
+				"bLengthChange": true,
+				"ajax": {
+							"type"   : "GET",
+							"url"    : '/allorders',
+							"dataSrc": ""
+							},
+				"columns": [ 
+					{"data": "OrderNo","width": "8%"},
+					{"data": "OrderDate","width": "40%"},
+					{"data": "Name","width": "30%"},
+					{"data": "Total","width": "10%", "sClass": "numbersOnly",
+						render: $.fn.dataTable.render.number(',', '.', 2, '')},
+					{"targets": -1,
+						"data": null,
+						 "defaultContent": "<a style='margin-left:1em;' id='edit' class='fa fa-pencil' href=''></a>"  
+						} 
+					]									  
+		});
+		
+		$('#allOrdersTable tbody').on( 'click', '#edit', function () {
+			var data = table.row( $(this).parents('tr') ).data();
+			window.location.href = '/orders/edit/' + data['OrderID'];
+			return false;
+		} );
+
+	
+
+		$('#allOrdersTable tbody').on( 'click', 'tr', function () {
+				if ( $(this).hasClass('selected') ) {
+					$(this).removeClass('selected');
+				}
+				else {
+					table.$('tr.selected').removeClass('selected');
+					$(this).addClass('selected');
+				}
+			} );
+		
+		
+	
+	});
+
+	

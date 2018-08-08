@@ -1,0 +1,33 @@
+
+mixin projectLeadersTable(contacts,institutions)
+
+	
+	table#projectLeadersTable.table-bordered(style='width:100%; table-layout:fixed;')
+		thead
+			tr
+				th(style='width:45%') 
+					button.btn.btn-default.btn-sm.fa.fa-plus#addProjectLeader(type='button'  onClick="addTableRow('projectLeadersTable');") Project Leader
+				th(style='width:45%') Project Leader Institution
+				th(style='width:10%;')
+		tbody
+			tr(style='display:none;')
+				td
+					select(style={width: '100%'} id='projectLeaders' name='projectLeaders' data-placeholder='')
+						each item in contacts
+							option(value=item.ContactID) #{item.FullName}
+				td
+					select(style={width: '100%'} id='projectLeaderInstitution' name='projectLeaderInstitution' data-placeholder='')
+						each item in institutions
+							option(value=item.InstitutioID) #{item.InstitutionName}
+
+			if (projectLeaders)
+				each ci in projectLeaders
+					tr(id = `${ci.ProjectLeaderID}` )
+						td
+							select(style={width: '100%'} id='projectLeaders' name='projectLeaders' data-placeholder='')
+								each item in contacts
+									option(value=item.ContactID selected=ci.ContactID==item.ContactID) #{item.FullName}
+						td
+							select(style={width: '100%'} id='projectLeaderInstitution' name='projectLeaderInstitution' data-placeholder='')
+								each item in institutions
+									option(value=item.InstitutionID selected=ci.InstitutionID==item.InstitutionID) #{item.InstitutionName}

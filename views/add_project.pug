@@ -1,0 +1,334 @@
+include layouts/header
+include mixins/modal-save-record
+include projectbody
+include mixins/projectLeadersTable
+include mixins/projectManagersTable
+include mixins/projectMentorsTable
+include mixins/projectCollaboratorsTable
+include mixins/sacMembersTable
+include mixins/projectCoFundersTable
+include mixins/subProjectsTable
+include mixins/projectPeopleRolesTable
+include mixins/institutionsByProjectTable
+include mixins/modal-goto-subproject
+include mixins/projectDiaryTable
+include mixins/modal-validation-alert
+
+.container.page-data
+	form.form-horizontal(id="add_project" method="post" action="/projects/add" enctype="multipart/form-data")
+				
+		.div(style={'margin-top': '70px', 'margin-bottom': '70px'})
+			.form-group.form-row(style={'padding-left': '0px', 'padding-right': '0px'})
+				.col-md-12.mygroupheader
+					.h5 ADD PROJECT
+						.btn-group-sm.float-right(role="group")
+							button.btn.btn-primary.fa.fa-arrow-left#cancel(type='button')
+							button.btn.btn-primary.fa.fa-save(type='button' data-toggle="modal" data-target=".save-record")
+
+			.editAdSection
+				+projectbody(project,keywords)
+
+
++modal-save-record
++modal-goto-subproject
++modal-validation-alert
+
+script(type='text/javascript').
+	$(document).ready(function() {
+
+		$("body").on("click", "#cancel", cancel);	
+
+		var needToConfirm = false; 
+		$("select,input,textarea").change(function() {
+			needToConfirm = true;
+		});
+		$(window).on("beforeunload", function(e) {
+			if(needToConfirm==true) {
+				var message = "Are you sure you want to leave?";
+				e.returnValue = message;
+				return message;
+			}
+			return;
+		});
+
+
+
+		$('.chosen-select').chosen({ width: '100%' });
+		$('.chosen-select-deselect').chosen({ allow_single_deselect: true });
+		$('.chosen-select-no-results').chosen({ no_results_text:'Oops, nothing found!' });
+
+		getSubProjectBudgetTotal();
+
+		$("#EndDate").prop('disabled', true);
+
+		$('#LengthOfProjectYears').change(function(){ changeEndDate(); });
+		$('#LengthOfProjectMonths').change(function(){ changeEndDate(); });
+	
+		$("#StartDate").datepicker({
+				autoclose: true, dateFormat: 'M d, yy',todayHighlight: true,
+				onSelect: function(dateText) {
+					$(this).change();
+				}
+		}).on("change", function() {
+			changeEndDate(); 
+		});
+
+		$("#StartDate").datepicker("setDate", new Date());
+
+		if ($('#ProgramType').children(':selected').text().trim() != 'New Investigator') {
+			$('#MentorSection').hide();
+		}  else { $('#MentorSection').show(); }
+
+		$('#ProgramType').change(function(){
+			if ($(this).children(':selected').text().trim() != 'New Investigator') {
+				$('#MentorSection').hide();
+			}  else { $('#MentorSection').show(); }
+		});
+
+		if ($('#Renewal').children(':selected').text().trim() != 'Yes') {
+			$('#RenewedSection').hide();
+		}  else { $('#RenewedSection').show(); }
+		
+		$(document).on('change click','select[name=Renewal]', function(){
+			if ($(this).val()=='1') {
+				$('#RenewedSection').show();
+			} else $('#RenewedSection').hide();		
+		});
+
+
+
+		getCoFunderTotal();
+		getSubProjectBudgetTotal();
+
+		$(document).on('change click','select[name=projectLeaders]', function(){
+			var row = $(this).parent().parent();
+			console.log('Id=' + $(this).val());
+			var id = $(this).val();
+			$.get( '/institutionByContact/' + id, function(data) {
+				var options = '';
+				for(var obj in data) {
+					if (data[obj].hasOwnProperty('InstitutionID')) {
+						var id = data[obj]['InstitutionID'];
+						var name = data[obj]['InstitutionName'];
+						options += '<option value="' + id + '">' + name + '</option>';		
+					}
+				}
+				console.log('options *** ' + options);
+				$(row).find('td').each(function(){
+					$(this).find('select[name=projectLeaderInstitution]').each(function(){ 
+						$(this).html(options);
+					});
+				});
+			});
+		});
+
+		localStorage.removeItem("editedProjectManagers");
+		localStorage.removeItem("deletedProjectManagers");
+		localStorage.removeItem("editedProjectMentors");
+		localStorage.removeItem("deletedProjectMentors");
+		localStorage.removeItem("editedProjectLeaders");
+		localStorage.removeItem("deletedProjectLeaders");
+		localStorage.removeItem("deletedSubProjects");
+		localStorage.removeItem("editedProjectCollaborators");
+		localStorage.removeItem("deletedProjectCollaborators");
+		localStorage.removeItem("editedProjectSACMembers");
+		localStorage.removeItem("deletedProjectSACMembers");
+
+		$('#LastMetricsReportReceived,#NextProjectMeetingDate,#LetterOfOfferDate,#NCEEndDate,#CloseOutLetterSentDate,#FollowUpDate,#RefundReceivedDate,#BudgetAmendedDate,#LastProjectMeetingDate,#NextSACMeetingDate,#LastProgressReportReceivedDate,#LastSACMeetingDate').datepicker({ autoclose: true, dateFormat: 'M d, yy',todayHighlight: true });
+
+		calcEndDate();
+
+		addImagesToTableRows('projectLeadersTable');
+		addImagesToTableRows('projectManagersTable');
+		addImagesToTableRows('projectMentorsTable');
+		addImagesToTableRows('projectCollaboratorsTable');
+		addImagesToTableRows('sacMembersTable');
+		
+		addImages('subProjectsTable');
+
+
+		$('#save-confirm').click(function(e){
+			if (!FormValidation()) {return;}
+			e.preventDefault();
+			var redirectURL='';
+			//SaveProject(redirectURL);	
+
+			var formData = {
+						'ProjectTitle' : $('input[name=ProjectTitle]').val(),
+						'ProjectShortName' : $('input[name=ProjectShortName]').val(),
+						'ProjectNumber' : $('input[name=ProjectNumber]').val()
+			};
+			$.ajax({
+				type     : 'POST', 
+				url      : '/project_validate', 
+				data     : formData, 
+				dataType : 'json', 
+				encode   : true
+			}).done(function(data) {
+					console.log(data.Qty); 
+					if ( data.Qty=='0') {SaveProject(redirectURL); } 
+					else { $('#modal-validation-alert').modal('toggle'); }
+			});
+
+		});
+
+		function addImages(table) {
+			$('#' + table).find('tr').next().each(function(){
+			
+			$(this).append($('<td>')
+					.append($('<a href="#">')
+					.attr('class', 'subproject fa fa-pencil')
+					)
+					//- .append($('<a href="#">')
+					//- .attr('class', 'fa fa-trash')
+					//- .on("click", Remove))
+				);
+
+				$(this).find('td').each(function(){
+					$(this).find('input').each(function(){
+					$(this).prop('disabled', true);
+					});
+
+					$(this).find('select').each(function(){
+					$(this).prop('disabled', true);
+					});
+				});
+			});
+		};
+
+
+		$('.subproject').click(function(e){	
+			var row = $(this).parent().parent();
+			var subProjectID = $(row).attr('id');  
+			console.log("subProjectID == " + subProjectID);
+			$('#modal-goto-subproject').modal('toggle');
+			
+			$('#goto-subproject').click(function(e){
+				var redirectURL = '/projects/editsubproject/' + subProjectID;
+				SaveProject(redirectURL); 
+			});
+		});
+
+
+
+		function SaveProject(redirectURL){
+
+			needToConfirm = false; 
+			$(window).off("beforeunload");
+
+			if ($('#ProgramType').children(':selected').text().trim() != 'New Investigators') {
+				$('#MentorProgram').val('');
+			} 
+
+			var objMetaData;
+			objMetaData = {table: 'projectLeadersTable', 
+							selectorName: 'select[name=projectLeaders]', 
+							editedListName: 'editedProjectLeaders'};
+			SaveProjectLeadersTable(objMetaData);
+
+			objMetaData = {table: 'projectManagersTable', 
+							selectorName: 'select[name=projectManagers]', 
+							editedListName: 'editedProjectManagers'};
+			SaveGeneralTable(objMetaData);
+
+			objMetaData = {table: 'projectMentorsTable', 
+							selectorName: 'select[name=projectMentors]', 
+							editedListName: 'editedProjectMentors'};
+			SaveGeneralTable(objMetaData);
+
+			
+			objMetaData = {table: 'projectCollaboratorsTable', 
+							selectorName: 'select[name=projectCollaborators]', 
+							editedListName: 'editedProjectCollaborators'};
+			SaveGeneralTable(objMetaData);
+
+			objMetaData = {table: 'sacMembersTable', 
+							selectorName: 'select[name=projectSACMembers]', 
+							editedListName: 'editedProjectSACMembers'};
+			SaveGeneralTable(objMetaData);
+
+			objMetaData = {table: 'projectDiaryTable', editedListName: 'editedProjectDiary'};
+			SaveProjectDiaryTable(objMetaData);
+
+
+			var formData = 	$("#add_project").serializeArray();
+
+			if (localStorage.getItem("editedProjectDiary") != null) {
+				var editedProjectDiary = JSON.parse(localStorage["editedProjectDiary"]);
+				formData.push({name: "editedProjectDiary", value: JSON.stringify(editedProjectDiary)});
+			}
+			
+			if (localStorage.getItem("editedProjectMentors") != null) {
+				var editedProjectMentors = JSON.parse(localStorage["editedProjectMentors"]);
+				formData.push({name: "editedProjectMentors", value: JSON.stringify(editedProjectMentors)});
+			}
+
+			if (localStorage.getItem("deletedProjectMentors") != null) {
+				var deletedProjectMentors = JSON.parse(localStorage["deletedProjectMentors"]);
+				formData.push({name: "deletedProjectMentors", value: JSON.stringify(deletedProjectMentors)});
+			}
+
+			if (localStorage.getItem("editedProjectManagers") != null) {
+				var editedProjectManagers = JSON.parse(localStorage["editedProjectManagers"]);
+				formData.push({name: "editedProjectManagers", value: JSON.stringify(editedProjectManagers)});
+			}
+
+			if (localStorage.getItem("deletedProjectManagers") != null) {
+				var deletedProjectManagers = JSON.parse(localStorage["deletedProjectManagers"]);
+				formData.push({name: "deletedProjectManagers", value: JSON.stringify(deletedProjectManagers)});
+			}
+
+			if (localStorage.getItem("editedProjectLeaders") != null) {
+				var editedProjectLeaders = JSON.parse(localStorage["editedProjectLeaders"]);
+				formData.push({name: "editedProjectLeaders", value: JSON.stringify(editedProjectLeaders)});
+			}
+
+			if (localStorage.getItem("deletedProjectLeaders") != null) {
+				var deletedProjectLeaders = JSON.parse(localStorage["deletedProjectLeaders"]);
+				formData.push({name: "deletedProjectLeaders", value: JSON.stringify(deletedProjectLeaders)});
+			}
+
+			if (localStorage.getItem("editedProjectCollaborators") != null) {
+				var editedProjectCollaborators = JSON.parse(localStorage["editedProjectCollaborators"]);
+				formData.push({name: "editedProjectCollaborators", value: JSON.stringify(editedProjectCollaborators)});
+			}
+
+			if (localStorage.getItem("deletedProjectCollaborators") != null) {
+				var deletedProjectCollaborators = JSON.parse(localStorage["deletedProjectCollaborators"]);
+				formData.push({name: "deletedProjectCollaborators", value: JSON.stringify(deletedProjectCollaborators)});
+			}
+
+			if (localStorage.getItem("editedProjectSACMembers") != null) {
+				var editedProjectSACMembers = JSON.parse(localStorage["editedProjectSACMembers"]);
+				formData.push({name: "editedProjectSACMembers", value: JSON.stringify(editedProjectSACMembers)});
+			}
+
+			if (localStorage.getItem("deletedProjectSACMembers") != null) {
+				var deletedProjectSACMembers = JSON.parse(localStorage["deletedProjectSACMembers"]);
+				formData.push({name: "deletedProjectSACMembers", value: JSON.stringify(deletedProjectSACMembers)});
+			}
+			
+			if (localStorage.getItem("deletedSubProjects") != null) {
+				var deletedSubProjects = JSON.parse(localStorage["deletedSubProjects"]);
+				formData.push({name: "deletedSubProjects", value: JSON.stringify(deletedSubProjects)});
+			}
+
+			var actionurl = '/projects/save_new';
+
+			$.ajax({
+					url: actionurl,
+					type: 'post',
+					data: formData,
+					success: function(data) {
+						console.log('success');
+						window.location = (redirectURL=='') ? data : redirectURL;
+					},
+					error: function() {	console.log('error');} 
+			});
+		};
+	});
+
+	function cancel() {
+		window.location.href = '/projects';  
+	};
+

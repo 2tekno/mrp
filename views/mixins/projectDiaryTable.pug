@@ -1,0 +1,25 @@
+mixin projectDiaryTable(projectDiary)
+
+	button.btn.btn-default.btn-sm.fa.fa-plus#addDiaryRecord(type='button'  onClick="addTableRow('projectDiaryTable');") Project Diary
+	table#projectDiaryTable.table-bordered(style='width:100%; table-layout:fixed;')
+			thead
+				tr
+
+						
+					th(style='width:15%') Date    
+					th(style='width:80%') Entry    
+					th(style='width:5%')    
+			tbody
+				tr(style='display:none;')
+					td
+						input.mydatepicker(type="text" name="ProjectDiaryDate"   value="" style={'width': '100%','vertical-align': 'top'})
+					td
+						textarea(rows='3' name="ProjectDiaryEntry"  value="" style={'width': '100%','vertical-align': 'middle'})
+
+				if (projectDiary)
+					each item in projectDiary
+						tr(id = `${item.ProjectDiaryID}` )
+							td
+								input.mydatepicker(type="text" name="ProjectDiaryDate"   value=item.ProjectDiaryDateFormatted style={'width': '100%','vertical-align': 'top'})
+							td
+								textarea(rows='3' name="ProjectDiaryEntry"   style={'width': '100%','vertical-align': 'middle'}) #{item.ProjectDiaryEntry}

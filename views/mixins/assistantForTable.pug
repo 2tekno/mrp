@@ -1,0 +1,16 @@
+mixin assistantForTable(assistantFor)
+
+	table#assistantForTable.table-bordered(style='width:100%')
+		thead
+			tr
+				th(style='width:100%') Administrative Assistant For
+
+		tbody
+			if (assistantFor)
+				each item in assistantFor
+					tr
+						td
+							p  #{item.AdminFullName}
+
+
+

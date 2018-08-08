@@ -1,0 +1,83 @@
+include layouts/header
+
+.container(style={'margin-top':'80px', 'margin-bottom': '70px'})
+
+	.col-sm-12
+		button.btn.btn-primary.btn-sm#addNewContact(type='button' name='addNewContact' ) Add New
+	.col-sm-12(style={'margin-top':'10px'})
+		table#allContactsTable.row-border.hover.order-column
+			thead
+				tr
+					th Last Name
+					th First Name
+					th Job Title
+					th Institution
+					th Address
+					th Phones
+					th Emails
+					th
+				tbody
+
+
+script(type='text/javascript').
+	$(document).ready(function() {
+
+		formSecurity('People');
+
+		var table = $('#allContactsTable').DataTable( {
+		"lengthMenu": [[25, 50, -1], [25, 50, "All"]],
+		"bPaginate": true,
+		"ajax": {
+		"type"   : "GET",
+		"url"    : '/NotFilteredContacts',
+		"dataSrc": ""
+		},
+		"autoWidth" : false,
+		"columns": [ 
+		{"data": "LName","width": "5%"},
+		{"data": "FName","width": "5%"},
+		{"data": "JobTitle","width": "15%"},
+		{"data": "Institutions","width": "15%"},
+		{"data": "Address","width": "25%"},
+		{"data": "Phones","width": "15%"},
+		{"data": "Emails","width": "15%"},
+		{"targets": -1,"width": "5%",
+		"data": null,
+		"defaultContent": "<a style='margin-left:1em;' id='edit' class='fa fa-pencil' href=''></a>"  
+		} 
+		]									  
+		});
+
+
+
+		$('#allContactsTable tbody').on( 'click', '#edit', function () {
+			var data = table.row( $(this).parents('tr') ).data();
+			window.location.href = '/contacts/edit/' + data['ContactID'];
+			return false;
+		} );
+
+
+		//- $('#allContactsTable tbody')
+		//- .on( 'mouseenter', 'td', function () {
+		//- 	var colIdx = table.cell(this).index().column;
+		//- 	$( table.cells().nodes() ).removeClass( 'highlight' );
+		//- 	$( table.column( colIdx ).nodes() ).addClass( 'highlight' );
+		//- } );
+
+
+		$('#allContactsTable tbody').on( 'click', 'tr', function () {
+			if ( $(this).hasClass('selected') ) {
+				$(this).removeClass('selected');
+			}
+			else {
+			table.$('tr.selected').removeClass('selected');
+				$(this).addClass('selected');
+			}
+		} );
+
+
+		$('#addNewContact').click(function(e){   window.location.href = '/contacts/add';  });
+
+	});
+
+

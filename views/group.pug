@@ -1,0 +1,68 @@
+include layouts/header
+
+.container(style={'margin-top':'80px', 'margin-bottom': '70px'})
+
+	.col-sm-12
+		button.btn.btn-primary.btn-sm#addNewGroup(type='button') Add New Group
+	.col-sm-12(style={'margin-top':'10px'})
+		table#allGroupsTable.row-border.hover.order-column
+			thead
+				tr
+					th Group Name
+					th
+				tbody
+
+
+script(type='text/javascript').
+	$(document).ready(function() {
+
+		 formSecurity('AllGroups');
+
+		var table = $('#allGroupsTable').DataTable( {
+				"lengthMenu": [[25, 50, -1], [25, 50, "All"]],
+				"bPaginate": true,
+				"bLengthChange": true,
+				"ajax": {
+				"type"   : "GET",
+				"url"    : '/all_groups_data',
+				"dataSrc": ""
+				},
+				"autoWidth" : false,
+				"columns": [ 
+				{"data": "GroupName","width": "95%"},
+				{"targets": -1,"width": "5%",
+				"data": null,
+				"defaultContent": "<a style='margin-left:1em;' id='edit' class='fa fa-pencil' href=''></a>"  
+				} 
+				]									  
+				});
+
+		$('#allGroupsTable tbody').on( 'click', '#edit', function () {
+			var data = table.row( $(this).parents('tr') ).data();
+			window.location.href = '/groups/edit/' + data['PeopleGroupID'] ;
+			return false;
+		} );
+
+		$('#allGroupsTable tbody')
+				.on( 'mouseenter', 'td', function () {
+					var colIdx = table.cell(this).index().column;
+			
+					$( table.cells().nodes() ).removeClass( 'highlight' );
+					$( table.column( colIdx ).nodes() ).addClass( 'highlight' );
+				} );
+
+
+		$('#allGroupsTable tbody').on( 'click', 'tr', function () {
+				if ( $(this).hasClass('selected') ) {
+					$(this).removeClass('selected');
+				}
+				else {
+					table.$('tr.selected').removeClass('selected');
+					$(this).addClass('selected');
+				}
+			} );
+
+		$('#addNewGroup').click(function(e){   window.location.href = '/groups/add';  });
+
+	});
+

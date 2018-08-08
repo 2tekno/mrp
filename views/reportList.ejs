@@ -1,0 +1,12 @@
+<%- include layouts/header.ejs %>
+
+<ul>
+
+  <% for (var j = 0; j < reports.length; j++){ %>
+		  <li>
+		  <a href="<%= ssrs_url + reports[j].ReportName%>" >
+		  <%= reports[j].ReportLabel%>
+		  </li>
+	  <% }  %>
+
+</ul>

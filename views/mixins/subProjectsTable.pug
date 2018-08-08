@@ -1,0 +1,28 @@
+mixin subProjectsTable(subprojects)
+	
+	table#subProjectsTable.table-bordered(style='width:100%')
+		thead
+			tr
+				th(style='width:30%') 
+					if (project)
+						button.btn.btn-default.btn-sm.fa.fa-plus(type='button' id='addSubProject' name='addSubProject') Sub-Project
+				th(style='width:25%') Principal Investigators
+				th(style='width:25%') PI Institutions		
+				th(style='width:17%') Amount Awarded
+				th(style='width:3%')
+		tbody
+			tr(style='display:none;')
+			if (subprojects)
+				each item in subprojects
+					tr(id = `${item.SubProjectID}` )
+						td #{item.SubProjectName}
+						td #{item.SubProjectPILIst}
+						td #{item.Institutions}
+						td
+							input(type="text" name="budgetamount" value=item.Total.toFixed(2) disabled readonly).numbersOnly
+		tfoot.foot
+			td.font-weight-bold(colspan="3") Total:
+			td
+				input(type="text" name="Total" disabled readonly).numbersOnly
+
+

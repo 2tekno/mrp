@@ -1,0 +1,253 @@
+mixin projectbody(project,keywords)
+
+	ul.nav.nav-tabs(role="tablist")
+		li.nav-item
+			a.nav-link.active(href="#overview", role="tab", data-toggle="tab" ) Project Overview
+		li.nav-item
+			a.nav-link(href="#subprojects", role="tab", data-toggle="tab" ) Sub-Projects & Finance
+		li.nav-item
+			a.nav-link(href="#personnel", role="tab", data-toggle="tab" ) Personnel
+		li.nav-item
+			a.nav-link(href="#otherinfo", role="tab", data-toggle="tab" ) Other Info
+
+	.tab-content(style={'margin-top':'20px'})
+		.tab-pane.active(id="overview" role="tabpanel")
+
+			fieldset.mygroup
+				legend.mygroup Main
+				.row
+					label.col-sm-2.col-form-label(for='ProjectTitle' ) Project Title
+					.col-sm
+						input.form-control(type='text' id='ProjectTitle' name='ProjectTitle' value=((project) ? project.ProjectTitle : '')   required  )
+
+				.row
+					label.col-sm-2.col-form-label(for='ProjectShortName' ) Project Short Name
+					.col-sm
+						input.form-control(type='text' id='ProjectShortName' name='ProjectShortName' value=((project) ? project.ProjectShortName : '')  required  )
+
+				.row
+					label.col-sm-2.col-form-label(for='ProjectNumber' ) Project Number
+					.col-sm-4
+						input.form-control(type='text' id='ProjectNumber' name='ProjectNumber' value=((project) ? project.ProjectNumber : '') )
+
+					label.col-sm-2.col-form-label(for='ProgramType' style={'text-align': 'right;'}) Program Type
+					.col-sm-4
+						select.form-control(id='ProgramType' name='ProgramType' data-placeholder='')
+							each item in programs
+								option(value=item.ProgramID selected=((project) ? project.ProgramID==item.ProgramID : NULL)) #{item.ProgramDescription}
+		
+				.row
+					label.col-sm-2.col-form-label(for='Renewal') Renewed?
+					.col-sm-4
+						select.form-control(style={'width':'100%'} id='Renewal' name='Renewal' data-placeholder='')
+							option(value=1 selected=((project) ? project.Renewal==1 : 1)) Yes
+							option(value=0 selected=((project) ? project.Renewal==0 : 0)) No
+
+					label.col-sm-2.col-form-label(for='ProjectStatus' style={'text-align': 'right;'}) Status
+					.col-sm-4
+						select.form-control(id='ProjectStatus' name='ProjectStatus' data-placeholder='')
+							each item in projectstatus
+								option(value=item.ProjectStatusID selected= ((project) ? project.ProjectStatusID==item.ProjectStatusID : NULL)) #{item.ProjectStatusDescription}
+
+
+				.row#RenewedSection
+					label.col-sm-2.col-form-label(for='RenewedProject') Renewed Project
+					.col-sm
+						select.form-control(style={'width':'100%'} id='RenewedProject' name='RenewedProject' data-placeholder='')
+							each item in renewedProject
+								option(value=item.ProjectID selected=((project) ? project.RenewedProjectID==item.ProjectID : NULL)) #{item.ProjectNumberTitle}
+
+
+			
+				.row(style={'margin-top': '10px'})
+					.col-6
+						.fieldset#ProjectLeaderSection
+							+projectLeadersTable(contacts,institutions)
+					.col-6
+						+projectManagersTable(contacts,projectManagers)
+				
+				.div(style={'margin-bottom':'20px'})
+
+				.row#MentorSection
+					label.col-sm-2.col-form-label(for='MentorProgram') Mentor Program
+					.col-sm
+						select.form-control(style={'width':'100%'} id='MentorProgram' name='MentorProgram' data-placeholder='')
+							each item in mentorProgram
+								option(value=item.ProjectID selected=((project) ? project.MentorProjectID==item.ProjectID : NULL)) #{item.ProjectNumberTitle}
+					
+					.row
+						.col-sm-6(style={'margin-top': '10px'})
+							+projectMentorsTable(contacts,projectMentors)
+
+			fieldset.mygroup
+				legend.mygroup Dates
+				.row
+					.col-sm-6
+						.row
+							label.col-sm-6.col-form-label(for='LengthOfProjectYears') Length of project Years/Months
+							.col-sm-3
+								select.form-control(id='LengthOfProjectYears' name='LengthOfProjectYears' data-placeholder='')
+									each item in Years
+										option(value=item.value selected=((project) ? project.LengthOfProjectYears==item.value : NULL)) #{item.value}
+							.col-sm-3
+								select.form-control(id='LengthOfProjectMonths' name='LengthOfProjectMonths' data-placeholder='')
+									each item in Months
+										option(value=item.value selected=((project) ? project.LengthOfProjectMonths==item.value : NULL)) #{item.value}
+
+						.row
+							label.col-sm-6.col-form-label(for='StartDate' ) Start Date
+							.col-sm-6
+								input.form-control(type='text' id='StartDate' name='StartDate' value=((project) ? project.StartDate : '') )
+
+						.row
+							label.col-sm-6.col-form-label(for='EndDate' ) End Date
+							.col-sm-6
+								input.form-control(type='text' id='EndDate' name='EndDate' value=((project) ? project.EndDate : '') )
+
+					.col-sm-1
+					.col-sm-5
+						.row
+							label.col-sm-6.col-form-label(for='LetterOfOfferDate' ) Letter of Offer Date
+							.col-sm-6
+								input.form-control(type='text' id='LetterOfOfferDate' name='LetterOfOfferDate' value=((project) ? project.LetterOfOfferDate : '') )
+
+						.row
+							label.col-sm-6.col-form-label(for='NCEEndDate' ) NCE End Date
+							.col-sm-6
+								input.form-control(type='text' id='NCEEndDate' name='NCEEndDate' value=((project) ? project.NCEEndDate : '') )
+
+						.row
+							label.col-sm-6.col-form-label(for='CloseOutLetterSentDate' ) Closed Out Letter Sent Date
+							.col-sm-6
+								input.form-control(type='text' id='CloseOutLetterSentDate' name='CloseOutLetterSentDate' value=((project) ? project.CloseOutLetterSentDate : '') )
+
+						.row
+							label.col-sm-6.col-form-label(for='FollowUpDate' ) 18 Month Follow Up Date
+							.col-sm-6
+								input.form-control(type='text' id='FollowUpDate' name='FollowUpDate' value=((project) ? project.FollowUpDate : '') )
+
+
+			fieldset.mygroup
+				legend.mygroup Finance
+				.row
+					.col-sm-6
+						.row
+							label.col-sm-6.col-form-label(for='TotalAmountAwarded' ) Total Amount Awarded
+							.col-sm-6
+								input.form-control(type='text' readonly='readonly' id='TotalAmountAwarded' name='TotalAmountAwarded' value=((project) ? project.TotalAmountAwarded : '') )
+
+						.row
+							label.col-sm-6.col-form-label(for='TFRIAmount' ) TFRI Amount
+							.col-sm-6
+								input.form-control(type='text' readonly='readonly' id='TFRIAmount' name='TFRIAmount' value=((project) ? project.TFRIAmount : '') )
+
+						.row
+							label.col-sm-6.col-form-label(for='BudgetAmendedDate' ) Budget Amended Date
+							.col-sm-6
+								input.form-control(type='text'  id='BudgetAmendedDate' name='BudgetAmendedDate' value=((project) ? project.BudgetAmendedDate : '') )
+
+					.col-sm-1
+					.col-sm-5
+						.row 
+							label.col-sm-6.col-form-label(for='ClosedUnusedFunds' ) Closed Unused Funds
+							.col-sm-6
+								input.form-control(type='text'  id='ClosedUnusedFunds' name='ClosedUnusedFunds' value=((project) ? project.ClosedUnusedFunds : '') )
+
+						.row
+							label.col-sm-6.col-form-label(for='RefundReceivedDate' ) Refund Received
+							.col-sm-6
+								input.form-control(type='text'  id='RefundReceivedDate' name='RefundReceivedDate' value=((project) ? project.RefundReceivedDate : '') )
+
+					.col-sm-12
+						.row(style={'margin-top': '10px'})
+							+projectCoFundersTable(cofunders)
+
+
+			fieldset.mygroup
+				legend.mygroup Reports and Meetings
+				.form-group.form-row
+					.col-4
+						label.col-form-label(for='ProgressReportFrequency') Progress Report Frequency
+						select.form-control(name="ProgressReportFrequency" id="ProgressReportFrequency")
+							option(value="Annual" selected=((project) ? project.ProgressReportFrequency=="Annual" : '')) Annual
+							option(value="Bi-Annual" selected=((project) ? project.ProgressReportFrequency=="Bi-Annual" : '')) Bi-Annual
+
+
+						label.col-form-label(for='ProgressReportMonths' ) Progress Report Months
+						input.form-control(type='text'  id='ProgressReportMonths' name='ProgressReportMonths' value=((project) ? project.ProgressReportMonths : '') )
+
+						label.col-form-label(for='LastProgressReportReceived' ) Last Progress Report Received
+						input.form-control(type='text'  id='LastProgressReportReceived' name='LastProgressReportReceived' value=((project) ? project.LastProgressReportReceivedDate : '') )
+
+					.col-4
+						label.col-form-label(for='ProjectMeetingFrequency' ) Project Meeting Frequency
+						input.form-control(type='text'  id='ProjectMeetingFrequency' name='ProjectMeetingFrequency' value=((project) ? project.ProjectMeetingFrequency : '') )
+
+						label.col-form-label(for='LastProjectMeetingDate' ) Last Project Meeting Date
+						input.form-control(type='text'  id='LastProjectMeetingDate' name='LastProjectMeetingDate' value=((project) ? project.LastProjectMeetingDate : '') )
+
+						label.col-form-label(for='NextSACMeetingDate' ) Next SAC Meeting Date
+						input.form-control(type='text'  id='NextSACMeetingDate' name='NextSACMeetingDate' value=((project) ? project.NextSACMeetingDate : '') )
+
+					.col-4
+						label.col-form-label(for='LastSACMeetingDate' ) Last SAC Meeting Date
+						input.form-control(type='text'  id='LastSACMeetingDate' name='LastSACMeetingDate' value=((project) ? project.LastSACMeetingDate : '') )
+
+						label.col-form-label(for='NextProjectMeetingDate' ) Next Project Meeting
+						input.form-control(type='text'  id='NextProjectMeetingDate' name='NextProjectMeetingDate' value=((project) ? project.NextProjectMeetingDate : '' ))
+
+						label.col-form-label(for='LastMetricsReportReceived' ) Last Metrics Report Received
+						input.form-control(type='text'  id='LastMetricsReportReceived' name='LastMetricsReportReceived' value=((project) ? project.LastMetricsReportReceived : '' ))
+		
+
+
+		.tab-pane(id="personnel" role="tabpanel")
+
+			.form-group.form-row
+				+projectPeopleRolesTable(peopleRolesByProject)
+
+			.form-group.form-row
+				+institutionsByProjectTable(institutionsByProject)
+
+			.form-group.row
+				.col
+					+projectCollaboratorsTable(contacts,projectCollaborators)
+				.col
+					+sacMembersTable(contacts,projectSACMembers)
+		
+		.tab-pane(id="subprojects" role="tabpanel")
+			.form-group.form-row
+				+subProjectsTable(subprojects)
+
+		.tab-pane(id="otherinfo" role="tabpanel")
+
+			.form-group.form-row
+				label.col-sm-2.col-form-label(for='Keywords' ) Keywords
+				.col-sm-10
+					select.chosen-select(id='Keywords' name='Keywords[]' data-placeholder='Keywords ...' multiple tabindex='4')
+						each item in keywords
+							option(value=item.value selected=((project) ? project.Keywords.indexOf(item.value) != -1 : NULL)) #{item.value}
+
+				label.col-sm-2.col-form-label(for='ExtraKeywords' ) Extra Keywords
+				.col-sm-10
+					textarea.form-control(rows='2' id='ExtraKeywords' name='ExtraKeywords')
+						| #{((project) ? project.ExtraKeywords : '')}
+
+
+			.form-group.form-row
+				.col-6
+					label.col-sm-4.col-form-label(for='LaySummary' ) Lay Summary
+					textarea.form-control(rows='4' id='LaySummary' name='LaySummary')
+						| #{((project) ? project.LaySummary : '')}
+
+
+				.col
+					label.col-sm-4.col-form-label(for='ScientificSummary' ) Scientific Summary
+					textarea.form-control(rows='4' id='ScientificSummary' name='ScientificSummary')
+						| #{((project) ? project.ScientificSummary : '')}
+
+
+			.form-group.form-row
+				+projectDiaryTable(projectDiary)
+
+		input.form-control(type='hidden' id='redirectToSubProjectPage' name='redirectToSubProjectPage' value='')

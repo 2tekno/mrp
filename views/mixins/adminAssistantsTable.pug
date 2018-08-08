@@ -1,0 +1,23 @@
+mixin adminAssistantsTable(contacts,adminAssistants)
+
+	table#adminAssistantsTable.table-bordered(style='width:100%; table-layout:fixed;')
+		thead
+			tr
+				th(style='width:90%') 
+					button.btn.btn-default.btn-sm.fa.fa-plus(type='button'  onClick="addTableRow('adminAssistantsTable');") Administrative Assistants
+					
+				th(style='width:10%')
+		tbody
+			tr(style='display:none;')
+				td
+					select(style={width: '100%'} id='adminAssistants' name='adminAssistants' data-placeholder='')
+						each item in contacts
+							option(value=item.ContactID) #{item.FullName}
+
+			if (adminAssistants)
+				each ci in adminAssistants
+					tr(id = `${ci.AdminAssistantID}` )
+						td
+							select(style={width: '100%'} id='adminAssistants' name='adminAssistants' data-placeholder='')
+								each item in contacts
+									option(value=item.ContactID selected=ci.ContactID==item.ContactID) #{item.FullName}

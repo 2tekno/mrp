@@ -1,0 +1,23 @@
+mixin contactGroupsTable(contactGroups,groups)
+
+	
+	table#contactGroupsTable.table-bordered(style='width:100%; table-layout:fixed;')
+		thead
+			tr
+				th(style='width:90%') 
+					button.btn.btn-default.btn-sm.fa.fa-plus(type='button'  onClick="addTableRow('contactGroupsTable');") Groups
+				th(style='width:10%')
+		tbody
+			tr(style='display:none;')
+				td
+					select(style={width: '100%'} id='contactGroups' name='contactGroups' data-placeholder='')
+						each item in groups
+							option(value=item.PeopleGroupID) #{item.GroupName}
+
+			if (contactGroups)
+				each ci in contactGroups
+					tr(id = `${ci.PeopleGroupContactID}` )
+						td
+							select(style={width: '100%'} id='contactGroups' name='contactGroups' data-placeholder='')
+								each item in groups
+									option(value=item.PeopleGroupID selected=ci.PeopleGroupID==item.PeopleGroupID) #{item.GroupName}

@@ -1,0 +1,204 @@
+include layouts/header
+include groupbody
+include mixins/modal-save-record
+include mixins/modal-delete-record
+include mixins/groupContactsTable
+include mixins/groupProjectsTable
+include mixins/modal-delete-alert
+include mixins/groupOwnersTable
+
+.container.page-data
+	form.form-horizontal(id="edit_group" method="post" action="/groups/edit/" enctype="multipart/form-data")
+		
+		.div(style={'margin-top': '70px', 'margin-bottom': '70px'})
+			input.form-control(type='hidden' id='idx' name='idx' value=group.PeopleGroupID)
+			.form-group.form-row(style={'padding-left': '0px', 'padding-right': '0px'})
+				.col-md-12.mygroupheader
+					.h5 GROUPS
+						.btn-group-sm.float-right(role="group")
+							button.btn.btn-primary.fa.fa-arrow-left#cancel(type='button') 
+							button.btn.btn-primary.fa.fa-save(type='button' data-toggle="modal" data-target=".save-record")
+							button.btn.btn-primary.fa.fa-trash#delete(type='button' data-toggle="modal" data-target=".delete-record") 
+			.editAdSection
+				+groupbody(group)
+
++modal-save-record
++modal-delete-record
++modal-delete-alert
+
+
+
+script(type='text/javascript').
+	$(document).ready(function() {
+
+		$("body").on("click", "#delete-confirm", deleteRecord);	
+		$("body").on("click", "#cancel", cancel);
+		
+		var needToConfirm = false; 
+		
+		
+
+		$("select,input,textarea").change(function() {
+			needToConfirm = true;
+		});
+		
+		$(window).on("beforeunload", function(e) {
+			if(needToConfirm==true) {
+				var message = "Are you sure you want to leave?";
+				e.returnValue = message;
+				return message;
+			}
+			return;
+		});                    
+
+
+		localStorage.removeItem("editedGroupOwners");
+		localStorage.removeItem("deletedGroupOwners");
+		localStorage.removeItem("editedGroupContacts");
+		localStorage.removeItem("deletedGroupContacts");
+		localStorage.removeItem("editedGroupProjects");
+		localStorage.removeItem("deletedGroupProjects");
+		addImagesToTableRows('groupContactsTable');
+		addImagesToTableRows('groupProjectsTable');
+		addImagesToTableRows('groupOwnersTable');
+
+		//formSecurity('Group');
+
+		groupOwner();
+
+		$('#save-confirm').click(function(e){
+			if (!FormValidation()) {return;}
+			e.preventDefault();
+			SaveGroup();
+		});
+
+
+		function SaveGroup() {
+			needToConfirm = false; 
+			$(window).off("beforeunload");
+
+			var objMetaData = {table: 'groupContactsTable', 
+								selectorName: 'select[name=groupContacts]', 
+								editedListName: 'editedGroupContacts'};
+			SaveGeneralTable(objMetaData);
+
+			objMetaData = {table: 'groupOwnersTable', 
+								selectorName: 'select[name=groupOwner]', 
+								editedListName: 'editedGroupOwners'};
+			SaveGroupOwnersTable(objMetaData);
+
+			objMetaData = {table: 'groupProjectsTable', 
+								selectorName: 'select[name=groupProjects]', 
+								editedListName: 'editedGroupProjects'};
+			SaveGeneralTable(objMetaData);
+
+			var groupID = $('input[name="idx"]').val();
+			var actionurl = '/groups/edit/'+groupID;
+			var formData =  $("#edit_group").serializeArray();				
+
+			if (localStorage.getItem("editedGroupOwners") != null) {
+				var editedGroupOwners = JSON.parse(localStorage["editedGroupOwners"]);
+				formData.push({name: "editedGroupOwners", value: JSON.stringify(editedGroupOwners)});
+			}
+
+			if (localStorage.getItem("deletedGroupOwners") != null) {
+				var deletedGroupOwners = JSON.parse(localStorage["deletedGroupOwners"]);
+				formData.push({name: "deletedGroupOwners", value: JSON.stringify(deletedGroupOwners)});
+			}
+
+			if (localStorage.getItem("editedGroupContacts") != null) {
+				var editedGroupContacts = JSON.parse(localStorage["editedGroupContacts"]);
+				formData.push({name: "editedGroupContacts", value: JSON.stringify(editedGroupContacts)});
+			}
+			if (localStorage.getItem("deletedGroupContacts") != null) {
+				var deletedGroupContacts = JSON.parse(localStorage["deletedGroupContacts"]);
+				formData.push({name: "deletedGroupContacts", value: JSON.stringify(deletedGroupContacts)});
+			}
+
+			if (localStorage.getItem("editedGroupProjects") != null) {
+				var editedGroupProjects = JSON.parse(localStorage["editedGroupProjects"]);
+				formData.push({name: "editedGroupProjects", value: JSON.stringify(editedGroupProjects)});
+			}
+			if (localStorage.getItem("deletedGroupProjects") != null) {
+				var deletedGroupProjects = JSON.parse(localStorage["deletedGroupProjects"]);
+				formData.push({name: "deletedGroupProjects", value: JSON.stringify(deletedGroupProjects)});
+			}
+
+			$.ajax({
+				url: actionurl,
+				type: 'post',
+				data: formData,
+				success: function(data) {
+					console.log('success');
+					window.location = data;
+				},
+				error: function() { console.log('error');}
+			});
+		};
+	});
+
+
+	function deleteRecord(e) {
+			var ID = $('input[name="idx"]').val();									
+			console.log('delete record == ' + ID);
+			var formData = { 'ID' : ID };
+			$.ajax({
+				type     : 'POST', 
+				url      : '/group_delete_validate', 
+				data     : formData, 
+				dataType : 'json', 
+				encode   : true
+			}).done(function(data) {
+					console.log(data.Qty); 
+					if ( data.Qty=='0') {
+									window.location.href = '/groups/delete/' + ID;  
+					} 
+					else { $('#modal-delete-alert').modal('toggle'); }
+			});  
+	};	
+
+	function groupOwner() {
+			var ID = $('input[name="idx"]').val();									
+			var formData = { 'ID' : ID };
+			
+			$.ajax({
+				type     : 'POST', 
+				url      : '/group_owner_validate', 
+				data     : formData, 
+				dataType : 'json', 
+				encode   : true
+			}).done(function(data) {
+				for(var obj in data) {
+				
+					if (data[obj].hasOwnProperty('Qty')) {
+						var Qty = data[obj]['Qty'];
+						console.log(Qty); 
+
+						if (Qty=='0') {
+							var myTable1 = document.getElementById('ownersTable');
+							var myTable2 = document.getElementById('groupContactsTable');
+							 $(myTable1).find("input,button,textarea,select,a").attr("disabled", "disabled");
+							 $(myTable2).find("input,button,textarea,select,a").attr("disabled", "disabled");
+
+							var classes1 = document.getElementsByClassName("fa fa-trash");
+							var values = Array.prototype.map.call(classes1, function(el) {
+								el.disabled = true;
+								el.style.cursor = 'default';
+								$(el).unbind('click');
+							});
+							var classes2 = document.getElementsByClassName("fa fa-pencil");
+							var values = Array.prototype.map.call(classes2, function(el) {
+								el.disabled = true;
+								el.style.cursor = 'default';
+								$(el).unbind('click');
+							});
+
+						} 
+					}
+				};  
+			});
+	};
+
+	function cancel() {
+		window.location.href = '/groups';  
+	};

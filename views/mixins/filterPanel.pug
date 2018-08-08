@@ -1,0 +1,38 @@
+mixin filterPanel(programs,projectstatus,province,institution)
+
+	button(type='button' data-toggle="collapse" data-target="#filterPanel") Click here to show or hide filter panel
+
+	.collapse#filterPanel.well
+		.form-group.row(style={'margin-top':'0px', 'margin-bottom': '0px'})
+			label.col-sm-3.control-form-label(for='ProgramType' ) Program Type
+			.col-sm-9
+				select(id='ProgramTypeFilter' name='ProgramTypeFilter' data-placeholder='')
+					if (programs)
+					each item in programs
+						option(value=item.ProgramID) #{item.ProgramDescription}
+
+		.form-group.row(style={'margin-top':'0px', 'margin-bottom': '0px'})
+			label.col-sm-3.control-form-label(for='ProjectStatusFilter' ) Project Status
+			.col-sm-9
+				select(id='ProjectStatusFilter' name='ProjectStatusFilter' data-placeholder='')
+					if (projectstatus)
+					each item in projectstatus
+						option(value=item.ProjectStatusID) #{item.ProjectStatusDescription}
+
+		.form-group.row(style={'margin-top':'0px', 'margin-bottom': '0px'})
+			label.col-sm-3.control-form-label(for='ProvinceFilter' ) Province
+			.col-sm-9
+				select(id='ProvinceFilter' name='ProvinceFilter' data-placeholder='')
+					if (province)
+					each item in province
+						option(value=item.Province) #{item.Province}
+
+		.form-group.row(style={'margin-top':'0px', 'margin-bottom': '0px'})
+			label.col-sm-3.control-form-label(for='InstitutionFilter' ) Institution
+			.col-sm-9
+				select(id='InstitutionFilter' name='InstitutionFilter' data-placeholder='')
+					if (institution)
+					each item in institution
+						option(value=item.InstitutionID) #{item.InstitutionName}
+
+		button.btn.btn-primary.btn-sm#filterButton(type='button') Apply Filter

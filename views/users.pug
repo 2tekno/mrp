@@ -1,0 +1,57 @@
+include layouts/header
+
+.container(style={'margin-top':'80px', 'margin-bottom': '70px'})
+
+	.col-sm-12
+		button.btn.btn-primary.btn-sm#add-new(type='button') Add New User
+	.col-sm-12(style={'margin-top':'10px'})
+		table#allUsersTable.row-border.hover.order-column
+			thead
+				tr
+					th User Name
+					th First Name
+					th Last Name
+					th Email
+					th Inactive
+					th Is Admin
+					th
+				tbody
+
+
+script(type='text/javascript').
+	$(document).ready(function() {
+
+		var table = $('#allUsersTable').DataTable( {
+			"bPaginate": true,
+			"bLengthChange": false,
+			"ordering": false,
+			"ajax": {
+					"type"   : "GET",
+					"url"    : '/all_users_data',
+					"dataSrc": ""
+					},
+				"autoWidth" : false,
+				"columns": [ 
+					{"data": "UserName","width": "10%"},
+					{"data": "FName","width": "15%"},
+					{"data": "LName","width": "15%"},
+					{"data": "Email","width": "30%"},
+					{"data": "InactiveStr","width": "10%"},
+					{"data": "IsAdminStr","width": "10%"},
+					{"targets": -1,"width": "5%",
+						"data": null,
+						"defaultContent": "<a style='margin-left:1em;' id='edit' class='fa fa-pencil' href=''></a>"  
+					} 
+				]									  
+		});
+
+		$('#allUsersTable tbody').on( 'click', '#edit', function () {
+			var data = table.row( $(this).parents('tr') ).data();
+			window.location.href = '/users/edit/' + data['UserID'];
+			return false;
+		} );
+			
+		$('#add-new').click(function(e){   window.location.href = '/new_user';  });
+
+	});
+

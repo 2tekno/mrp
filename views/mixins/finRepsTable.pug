@@ -1,0 +1,23 @@
+mixin finRepsTable(contacts,finReps)
+
+	table#finRepsTable.table-bordered(style='width:100%')
+		thead
+			tr
+				th(style='width:95%') 
+					button.btn.btn-default.btn-sm.fa.fa-plus(type='button'  onClick="addTableRow('finRepsTable');") Financial Rep.
+					
+				th(style='width:5%')
+		tbody
+			tr(style='display:none;')
+				td
+					select(style={width: '100%'} id='finReps' name='finReps' data-placeholder='')
+						each item in contacts
+							option(value=item.ContactID) #{item.FullName}
+
+			if (finReps)
+				each ci in finReps
+					tr(id = `${ci.SubProjectFinRepID}` )
+						td
+							select(style={width: '100%'} id='finReps' name='finReps' data-placeholder='')
+								each item in contacts
+									option(value=item.ContactID selected=ci.ContactID==item.ContactID) #{item.FullName}

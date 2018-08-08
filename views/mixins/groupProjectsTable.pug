@@ -1,0 +1,23 @@
+mixin groupProjectsTable(projects,groupProjects)
+
+	table#groupProjectsTable.table-bordered(style='width:100%')
+		thead
+			tr
+				th(style='width:90%') 
+					button.btn.btn-default.btn-sm.fa.fa-plus(type='button'  onClick="addTableRow('groupProjectsTable');") Projects
+					
+				th(style='width:10%')
+		tbody
+			tr(style='display:none;')
+				td
+					select(style={width: '100%'} id='groupProjects' name='groupProjects' data-placeholder='')
+						each item in projects
+							option(value=item.ProjectID) #{item.ProjectNumberTitle}
+
+			if (groupProjects)
+				each ci in groupProjects
+					tr(id = `${ci.PeopleGroupProjectID}` )
+						td
+							select(style={width: '100%'} id='groupProjects' name='groupProjects' data-placeholder='')
+								each item in projects
+									option(value=item.ProjectID selected=ci.ProjectID==item.ProjectID) #{item.ProjectNumberTitle}

@@ -1,0 +1,24 @@
+
+mixin coInvestigatorsTable(contacts,coInvestigators)
+
+	table#coInvestigatorsTable.table-bordered(style='width:100%')
+		thead
+			tr
+				th(style='width:90%') 
+					button.btn.btn-default.btn-sm.fa.fa-plus(type='button'  onClick="addTableRow('coInvestigatorsTable');") Co-Investigator
+					
+				th(style='width:10%')
+		tbody
+			tr(style='display:none;')
+				td
+					select(style={width: '100%'} id='coInvestigators' name='coInvestigators' data-placeholder='')
+						each item in contacts
+							option(value=item.ContactID) #{item.FullName}
+
+			if (coInvestigators)
+				each ci in coInvestigators
+					tr(id = `${ci.SubProjectCoInvestigatorID}` )
+						td
+							select(style={width: '100%'} id='coInvestigators' name='coInvestigators' data-placeholder='')
+								each item in contacts
+									option(value=item.ContactID selected=ci.ContactID==item.ContactID) #{item.FullName}

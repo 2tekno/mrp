@@ -1,0 +1,17 @@
+mixin institutionsByProjectTable(institutionsByProject)
+
+	table#institutionsByProjectTable.table-bordered(style='width:100%')
+		thead
+			tr
+				th(style='width:80%') Institution(s)
+				th(style='width:20%') Province
+				
+		tbody
+			if(institutionsByProject)
+				each item in institutionsByProject
+					tr
+						td
+							p  #{item.Institutions}
+
+						td
+							p  #{item.Province}

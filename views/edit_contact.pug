@@ -1,0 +1,264 @@
+include layouts/header
+include contactbody
+include mixins/contactPhoneTable
+include mixins/contactEmailTable
+include mixins/institutionTable
+include mixins/adminAssistantsTable
+include mixins/assistantForTable
+include mixins/contactProjectTable
+include mixins/modal-delete-record
+include mixins/modal-save-record
+include mixins/contactGroupsTable
+include mixins/modal-delete-alert
+include mixins/modal-validation-alert
+
+.container.page-data
+	form.form-horizontal(id="edit_contact" method="post" action="/edit_contact" enctype="multipart/form-data")
+				
+		.div(style={'margin-top': '70px', 'margin-bottom': '70px'})
+			input.form-control(type='hidden' id='idx' name='idx' value=contact.ContactID)
+			.form-group.form-row(style={'padding-left': '0px', 'padding-right': '0px'})
+				.col-md-12.mygroupheader
+					.h5 PEOPLE
+						.btn-group-sm.float-right(role="group")
+							button.btn.btn-primary.fa.fa-arrow-left#cancel(type='button') 
+							button.btn.btn-primary.fa.fa-save#saveRecord(type='button' data-toggle="modal" data-target=".save-record")
+							button.btn.btn-primary.fa.fa-trash#delete(type='button' data-toggle="modal" data-target=".delete-record") 
+
+			.editAdSection
+				+contactbody(contact)
+
++modal-delete-record
++modal-save-record
++modal-delete-alert
++modal-validation-alert
+
+script(type='text/javascript').
+	$(document).ready(function() {
+
+		$("body").on("click", "#delete-confirm", deleteRecord);	
+		$("body").on("click", "#cancel", cancel);	
+		$("body").on("click", "#Primary", primaryClick);	
+
+		var needToConfirm = false; 
+
+		$("select,input,textarea").change(function() {
+			needToConfirm = true;
+		});
+		
+
+		$(window).on("beforeunload", function(e) {
+			if(needToConfirm==true) {
+				var message = "Are you sure you want to leave?";
+				e.returnValue = message;
+				return message;
+			}
+			return;
+		});
+
+
+		localStorage.removeItem("editedContactGroups");
+		localStorage.removeItem("deletedContactGroups");
+
+		localStorage.removeItem("deletedContactInstitutions");
+		localStorage.removeItem("editedContactInstitutions");
+
+		localStorage.removeItem("deletedAdminAssistants");
+		localStorage.removeItem("editedAdminAssistants");    
+		
+		localStorage.removeItem("deletedContactPhones");
+		localStorage.removeItem("editedContactPhones"); 
+		
+		localStorage.removeItem("deletedContactEmails");
+		localStorage.removeItem("editedContactEmails"); 
+
+		addImagesToTableRows('institutionTable');
+		addImagesToTableRows('adminAssistantsTable');
+		addImagesToTableRows('contactPhoneTable');
+		addImagesToTableRows('contactEmailTable');
+		addImagesToTableRows('contactGroupsTable');
+
+		formSecurity('People');
+
+
+		$('#save-confirm').click(function(e){			
+			if (!FormValidation()) {return;}
+			e.preventDefault();
+			needToConfirm = false; 
+			$(window).off("beforeunload")
+
+			var formData = {
+						'FName' : $('input[name=FName]').val(),
+						'LName' : $('input[name=LName]').val()
+			};
+			var contactID = $('input[name="idx"]').val();
+			$.ajax({
+				type     : 'POST', 
+				url      : '/contact_edit_validate/'+contactID, 
+				data     : formData, 
+				dataType : 'json', 
+				encode   : true
+			}).done(function(data) {
+					console.log(data.Qty); 
+					if ( data.Qty=='0') {SaveContact(); } 
+					else { $('#modal-validation-alert').modal('toggle'); }
+			});
+		});
+
+
+
+
+		function SaveContact() {
+			needToConfirm = false; 
+			$(window).off("beforeunload");
+
+			var objMetaData = {table: 'institutionTable', 
+								selectorName: 'select[name=institutions]', 
+								editedListName: 'editedContactInstitutions'};
+			SaveInstitutionTable(objMetaData);
+
+			
+			objMetaData = {table: 'adminAssistantsTable', 
+			selectorName: 'select[name=adminAssistants]', 
+			editedListName: 'editedAdminAssistants'};
+			SaveGeneralTable(objMetaData);
+
+			objMetaData = {table: 'contactPhoneTable', inputName: 'input[name=Phone]', 
+							checkBoxName: 'input[name=Primary]',
+							editedListName: 'editedContactPhones'};
+			SavePhoneEmailTable(objMetaData);
+			
+			objMetaData = {table: 'contactEmailTable', inputName: 'input[name=Email]', checkBoxName: 'input[name=Primary]',
+							editedListName: 'editedContactEmails'};
+			SavePhoneEmailTable(objMetaData);
+			
+			
+			objMetaData = {table: 'contactGroupsTable', 
+								selectorName: 'select[name=contactGroups]', 
+									editedListName: 'editedContactGroups'};
+			SaveGeneralTable(objMetaData);						  
+			
+			var actionurl = '/edit_contact';
+			var formData =  $("#edit_contact").serializeArray();
+
+			var Institutions = getPartners('institutionTable');
+			formData.push({name: "Institutions", value: JSON.stringify(Institutions)});
+
+			if (localStorage.getItem("editedContactInstitutions") != null) {
+				var editedContactInstitutions = JSON.parse(localStorage["editedContactInstitutions"]);
+				formData.push({name: "editedContactInstitutions", value: JSON.stringify(editedContactInstitutions)});
+			}
+
+			if (localStorage.getItem("deletedContactInstitutions") != null) {
+				var deletedContactInstitutions = JSON.parse(localStorage["deletedContactInstitutions"]);
+				formData.push({name: "deletedContactInstitutions", value: JSON.stringify(deletedContactInstitutions)});
+			}
+
+			if (localStorage.getItem("editedAdminAssistants") != null) {
+				var editedAdminAssistants = JSON.parse(localStorage["editedAdminAssistants"]);
+				formData.push({name: "editedAdminAssistants", value: JSON.stringify(editedAdminAssistants)});
+			}
+
+			if (localStorage.getItem("deletedAdminAssistants") != null) {
+				var deletedAdminAssistants = JSON.parse(localStorage["deletedAdminAssistants"]);
+				formData.push({name: "deletedAdminAssistants", value: JSON.stringify(deletedAdminAssistants)});
+			}
+
+			if (localStorage.getItem("editedContactPhones") != null) {
+				var editedContactPhones = JSON.parse(localStorage["editedContactPhones"]);
+				formData.push({name: "editedContactPhones", value: JSON.stringify(editedContactPhones)});
+			}
+
+			if (localStorage.getItem("deletedContactPhones") != null) {
+				var deletedContactPhones = JSON.parse(localStorage["deletedContactPhones"]);
+				formData.push({name: "deletedContactPhones", value: JSON.stringify(deletedContactPhones)});
+			}
+
+			if (localStorage.getItem("editedContactEmails") != null) {
+				var editedContactEmails = JSON.parse(localStorage["editedContactEmails"]);
+				formData.push({name: "editedContactEmails", value: JSON.stringify(editedContactEmails)});
+			}
+
+			if (localStorage.getItem("deletedContactEmails") != null) {
+				var deletedContactEmails = JSON.parse(localStorage["deletedContactEmails"]);
+				formData.push({name: "deletedContactEmails", value: JSON.stringify(deletedContactEmails)});
+			}
+
+			if (localStorage.getItem("editedContactGroups") != null) {
+				var editedContactGroups = JSON.parse(localStorage["editedContactGroups"]);
+				formData.push({name: "editedContactGroups", value: JSON.stringify(editedContactGroups)});
+			}
+			if (localStorage.getItem("deletedContactGroups") != null) {
+				var deletedContactGroups = JSON.parse(localStorage["deletedContactGroups"]);
+				formData.push({name: "deletedContactGroups", value: JSON.stringify(deletedContactGroups)});
+			}
+
+			var contactID = $('input[name="idx"]').val();
+			$.ajax({
+				url: actionurl+'/'+contactID,
+				type: 'post',
+				data: formData,
+				success: function(data) {
+				console.log('success');
+				window.location = data;
+				},error: function() { console.log('error');}
+			});
+
+		}
+
+	});
+
+	
+	function deleteRecord(e) {
+			var ContactID = $('input[name="idx"]').val();									
+			console.log('delete record == ' + ContactID);
+
+			var formData = { 'ContactID' : ContactID };
+			
+			$.ajax({
+				type     : 'POST', 
+				url      : '/contact_delete_validate', 
+				data     : formData, 
+				dataType : 'json', 
+				encode   : true
+			}).done(function(data) {
+					console.log(data.Qty); 
+					if ( data.Qty=='0') {
+									window.location.href = '/contacts/delete/' + ContactID;  
+					} 
+					else { $('#modal-delete-alert').modal('toggle'); }
+			});  
+	};
+
+	function cancel() {
+		window.location.href = '/contacts';  
+	};
+
+	function primaryClick() {
+		var table = $(this).parent().parent().parent().parent().attr('id');
+		var rowID = $(this).parent().parent().attr('id');
+		var primary;
+		if ($(this).is(":checked")) { primary=true; } else {primary=false;} 
+
+		if(primary==false) {return;}
+
+		$('#' + table).find('tr').each(function(){
+			var rID = $(this).attr('id');
+			if (rowID == rID) {
+				$(this).find('td').each(function(){
+					$(this).find('input[name=Primary]').each(function(){ 
+						$(this).attr('checked',true);
+					});
+				});
+			}
+			else {
+				$(this).find('td').each(function(){
+					$(this).find('input[name=Primary]').each(function(){ 
+						$(this).attr('checked',false);
+					});
+				});
+			}
+		});
+
+	}
+

@@ -1,0 +1,24 @@
+mixin groupOwnersTable(groupOwners,users)
+
+	.div#ownersTable
+		table#groupOwnersTable.table-bordered(style='width:100%')
+			thead
+				tr
+					th(style='width:90%') 
+						button.btn.btn-default.btn-sm.fa.fa-plus(type='button'  onClick="addTableRow('groupOwnersTable');") Group Owner
+						
+					th(style='width:10%')
+			tbody
+				tr(style='display:none;')
+					td
+						select(style={width: '100%'} id='groupOwner' name='groupOwner' data-placeholder='')
+							each item in users
+								option(value=item.UserID) #{item.FullName}
+
+				if (groupOwners)
+					each ci in groupOwners
+						tr(id = `${ci.PeopleGroupOwnerID}` )
+							td
+								select(style={width: '100%'} id='groupOwner' name='groupOwner' data-placeholder='')
+									each item in users
+										option(value=item.UserID selected=ci.UserID==item.UserID) #{item.FullName}

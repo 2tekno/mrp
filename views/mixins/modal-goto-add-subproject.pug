@@ -1,0 +1,12 @@
+mixin modal-goto-add-subproject
+
+	.modal.fade#modal-goto-add-subproject(tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true")
+		.modal-dialog.modal-dialog-centered
+			.modal-content
+				.modal-header
+					.h5.modal-title You clicked on Add Sub-Project button
+				.modal-body
+					| All changes on the current page will be saved!
+				.modal-footer
+					button.btn.btn-primary(type='button' data-dismiss="modal") Cancel
+					button.btn.btn-secondary(type='button' id='goto-add-subproject' data-dismiss="modal") Go to Add Sub-Project page

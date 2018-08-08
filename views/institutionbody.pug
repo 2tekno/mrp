@@ -1,0 +1,88 @@
+mixin institutionbody(data)
+
+	fieldset.mygroup
+		legend.mygroup Main
+		.form-group.form-row
+			label.col-sm-2.col-form-label(for='InstitutionName' ) 
+				| Institution Name 
+				span(style='color: red') *
+			.col-sm
+				input.form-control(type='text' id='InstitutionName' name='InstitutionName' value=((data) ? data.InstitutionName  : '') required  )
+
+		.form-group.row
+			label.col-sm-2.col-form-label(for='ParentInstitution' ) Parent Institution
+			.col-sm
+				select.form-control(style={'width':'100%'}  id='ParentInstitution' name='ParentInstitution' data-placeholder='')
+					each item in institutions
+						option(value=item.InstitutionID selected = ((data) ? data.ParentInstitutionID : '')==item.InstitutionID ) #{item.InstitutionName}
+
+		.form-group.form-row
+			label.col-sm-2.col-form-label(for='Acronym' ) Acronym
+			.col-sm
+				input.form-control(type='text' id='Acronym' name='Acronym' value=((data) ? data.Acronym : '') )
+
+		.form-group.form-row
+			+childInstitutionsTable(childInstitutions)
+
+
+	fieldset.mygroup
+		legend.mygroup Address
+		.form-group.form-row
+			label.col-sm-2.col-form-label(for='Address3' ) Street Address
+			.col-sm
+				input.form-control(type='text' id='Address3' name='Address3' value=((data) ? data.Address3 : '') )
+
+		.form-group.form-row
+			label.col-sm-2.col-form-label(for='City' ) 
+				| City 
+				span(style='color: red') *
+			.col-sm-4
+				input.form-control(type='text' id='City' name='City' value=((data) ? data.City : '') required) 
+
+			label.col-sm-2.col-form-label(for='Province' style={'text-align': 'right;'}) 
+				| Province 
+				span(style='color: red') *
+			.col-sm-4
+				select.form-control(id='Province' name='Province' required)
+					each item in province
+						option(value=item.Province selected=((data) ? data.Province.indexOf(item.Province) != -1 : NULL) ) #{item.Province}
+
+		.form-group.form-row
+			label.col-sm-2.col-form-label(for='PostalCode' ) Postal Code
+			.col-sm-4
+				input.form-control(type='text' id='PostalCode' name='PostalCode' value=((data) ? data.PostalCode : '') )
+
+			label.col-sm-2.col-form-label(for='Country' style={'text-align': 'right;'}) Country
+			.col-sm-4
+				input.form-control(type='text' id='Country' name='Country' value=((data) ? data.Country : '') )
+
+
+	fieldset.mygroup
+		legend.mygroup MOU
+
+		.form-group.form-row
+			.col-4
+				label.col-form-label(for='MOUStartDate' ) MOU Start Date
+				input.form-control(type='text' id='MOUStartDate' name='MOUStartDate' value=((data) ? data.MOUStartDate : '') )
+
+			.col-4
+				label.col-form-label(for='MOUEndDate' ) MOU End Date
+				input.form-control(type='text' id='MOUEndDate' name='MOUEndDate' value=((data) ? data.MOUEndDate : '') )
+
+			.col-4
+				label.col-form-label(for='MOUExtendedOnDate' ) MOU Extended On
+				input.form-control(type='text' id='MOUExtendedOnDate' name='MOUExtendedOnDate' value=((data) ? data.MOUExtendedOnDate : '') )
+		
+
+	fieldset.mygroup
+		legend.mygroup Additional Info
+		.form-group.row
+			label.col-sm-2.col-form-label(for='Notes' ) Notes
+			textarea.form-control(rows='4' id='Notes' name='Notes')
+				| #{((data) ? data.Notes : '')}	
+		.form-group.form-row
+			+peopleByInstitutionTable(peopleByInstitution)
+		.form-group.form-row
+			+projectByInstitutionTable(projectByInstitution)
+		.form-group.form-row
+			+projectByInsCoFundersTable(projectByInsCoFunders)

@@ -1,0 +1,27 @@
+mixin otherPersonnelTable(otherPersonnel,contacts)
+
+	
+	table#otherPersonnelTable.table-bordered(style='width:100%; table-layout:fixed;')
+		thead
+			tr
+				th(style='width:40%') 
+					button.btn.btn-default.btn-sm.fa.fa-plus(type='button'  onClick="addTableRow('otherPersonnelTable');") Other Personnel
+				th(style='width:50%') Role
+				th(style='width:10%')
+		tbody
+			tr(style='display:none;')
+				td
+					select(style={width: '100%'} id='contacts' name='contacts' data-placeholder='')
+						each item in contacts
+							option(value=item.ContactID) #{item.FullName}
+					td
+						input(type="text" name="Role"  value="" style={'width': '100%'})
+			if (otherPersonnel)
+				each ci in otherPersonnel
+					tr(id = `${ci.SubProjectOtherPersonnelID}` )
+						td
+							select(style={width: '100%'} id='contacts' name='contacts' data-placeholder='')
+								each item in contacts
+									option(value=item.ContactID selected=ci.ContactID==item.ContactID) #{item.FullName}
+						td
+							input(type="text" name="Role"  value=ci.Role style={'width': '100%'})

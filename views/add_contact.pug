@@ -1,0 +1,210 @@
+include layouts/header
+include contactbody
+include mixins/contactPhoneTable
+include mixins/contactEmailTable
+include mixins/institutionTable
+include mixins/adminAssistantsTable
+include mixins/assistantForTable
+include mixins/contactProjectTable
+include mixins/modal-save-record
+include mixins/contactGroupsTable
+include mixins/modal-validation-alert
+
+.container.page-data
+	form.form-horizontal(id="add_contact" method="post" action="/contacts/save_new/" enctype="multipart/form-data")
+		
+		.div(style={'margin-top': '70px', 'margin-bottom': '70px'})
+			.form-group.form-row(style={'padding-left': '0px', 'padding-right': '0px'})
+				.col-md-12.mygroupheader
+					.h5 PEOPLE
+						.btn-group-sm.float-right(role="group")
+							button.btn.btn-primary.fa.fa-arrow-left#cancel(type='button')
+							button.btn.btn-primary.fa.fa-save#saveRecord(type='button' data-toggle="modal" data-target=".save-record")
+			.editAdSection
+				+contactbody(contact)
+
+
++modal-save-record
++modal-validation-alert
+
+script(type='text/javascript').
+	$(document).ready(function() {
+
+		$("body").on("click", "#cancel", cancel);	
+		$("body").on("click", "#Primary", primaryClick);	
+
+		//FormSecure();
+
+		formSecurity('People');
+		
+		var needToConfirm = false; 
+		$("select,input,textarea").change(function() {
+			needToConfirm = true;
+			console.log('needToConfirm ==' + needToConfirm);
+		});
+		
+		$(window).on("beforeunload", function(e) {
+			console.log('beforeunload');
+
+			if(needToConfirm==true) {
+				var message = "Are you sure you want to leave?";
+				e.returnValue = message;
+				return message;
+			}
+			return;
+		});
+
+
+		localStorage.removeItem("editedContactInstitutions");
+		localStorage.removeItem("editedContactPhones");
+		localStorage.removeItem("editedContactEmails"); 
+		localStorage.removeItem("editedContactGroups");
+		localStorage.removeItem("deletedContactGroups");
+	
+		addImagesToTableRows('institutionTable');
+		addImagesToTableRows('contactGroupsTable');
+
+
+		$('#save-confirm').click(function(e){
+			
+			if (!FormValidation()) {return;}
+
+			e.preventDefault();
+			needToConfirm = false; 
+			$(window).off("beforeunload")
+
+			var formData = {
+						'FName' : $('input[name=FName]').val(),
+						'LName' : $('input[name=LName]').val()
+			};
+			
+			$.ajax({
+				type     : 'POST', 
+				url      : '/contact_validate', 
+				data     : formData, 
+				dataType : 'json', 
+				encode   : true
+			}).done(function(data) {
+					console.log(data.Qty); 
+					if ( data.Qty=='0') {SaveContact(); } 
+					else { $('#modal-validation-alert').modal('toggle'); }
+			});
+		});
+
+
+		//- function FormSecure() {
+		//- 	$.ajax({
+		//- 		type     : 'GET', 
+		//- 		url      : '/contact_security', 
+		//- 		dataType : 'json', 
+		//- 		encode   : true
+		//- 	}).done(function(data) {
+		//- 			for (var i in data) {document.getElementById(data[i]).setAttribute("readonly", true);}
+		//- 	});
+		//- }
+
+		function SaveContact() {
+			var objMetaData = {table: 'institutionTable', 
+					selectorName: 'select[name=institutions]', 
+					editedListName: 'editedContactInstitutions'};
+			SaveInstitutionTable(objMetaData);
+
+
+			objMetaData = {table: 'adminAssistantsTable', 
+								selectorName: 'select[name=adminAssistants]', 
+								editedListName: 'editedAdminAssistants'};
+			SaveGeneralTable(objMetaData);
+
+			objMetaData = {table: 'contactPhoneTable', inputName: 'input[name=Phone]', checkBoxName: 'input[name=Primary]',
+							editedListName: 'editedContactPhones'};
+			SavePhoneEmailTable(objMetaData);
+			objMetaData = {table: 'contactEmailTable', inputName: 'input[name=Email]', checkBoxName: 'input[name=Primary]',
+							editedListName: 'editedContactEmails'};
+			SavePhoneEmailTable(objMetaData);
+
+
+			objMetaData = {table: 'contactGroupsTable', 
+								selectorName: 'select[name=contactGroups]', 
+								editedListName: 'editedContactGroups'};
+			SaveGeneralTable(objMetaData);
+			
+			
+			var actionurl = '/contacts/save_new';
+			var formData =  $("#add_contact").serializeArray();
+			
+
+			if (localStorage.getItem("editedContactInstitutions") != null) {
+				var editedContactInstitutions = JSON.parse(localStorage["editedContactInstitutions"]);
+				formData.push({name: "editedContactInstitutions", value: JSON.stringify(editedContactInstitutions)});
+			}
+
+			if (localStorage.getItem("editedAdminAssistants") != null) {
+				var editedAdminAssistants = JSON.parse(localStorage["editedAdminAssistants"]);
+				formData.push({name: "editedAdminAssistants", value: JSON.stringify(editedAdminAssistants)});
+			}
+
+			if (localStorage.getItem("editedContactPhones") != null) {
+				var editedContactPhones = JSON.parse(localStorage["editedContactPhones"]);
+				formData.push({name: "editedContactPhones", value: JSON.stringify(editedContactPhones)});
+			}
+
+			if (localStorage.getItem("editedContactEmails") != null) {
+				var editedContactEmails = JSON.parse(localStorage["editedContactEmails"]);
+				formData.push({name: "editedContactEmails", value: JSON.stringify(editedContactEmails)});
+			}						  
+			
+			if (localStorage.getItem("editedContactGroups") != null) {
+				var editedContactGroups = JSON.parse(localStorage["editedContactGroups"]);
+				formData.push({name: "editedContactGroups", value: JSON.stringify(editedContactGroups)});
+			}
+			
+			$.ajax({
+				url: actionurl,
+				type: 'post',
+				data: formData,
+				success: function(data) {
+				console.log('success');
+				window.location = data;
+				},
+				error: function() { console.log('error');}
+			});
+
+		}
+	});
+
+	function cancel() {
+		window.location.href = '/contacts';  
+	};
+
+	function primaryClick() {
+		var table = $(this).parent().parent().parent().parent().attr('id');
+		var row = $(this).parent().parent();
+		var primary;
+		if ($(this).is(":checked")) { primary=true; } else {primary=false;} 
+
+		if(primary==false) {
+			$(row).attr('current',0);
+			return;
+		}
+		$(row).attr('current',1);
+
+		$('#' + table).find('tr').each(function(){
+			var rID = $(this).attr('current');
+			if (rID == 1) {
+				$(this).find('td').each(function(){
+					$(this).find('input[name=Primary]').each(function(){ 
+						$(this).attr('checked',true);
+						$(row).attr('current',0);
+					});
+				});
+			}
+			else {
+				$(this).find('td').each(function(){
+					$(this).find('input[name=Primary]').each(function(){ 
+						$(this).attr('checked',false);
+					});
+				});
+			}
+		});
+
+	}

@@ -1,0 +1,23 @@
+mixin finOfficersTable(contacts,finOfficers)
+
+	table#finOfficersTable.table-bordered(style='width:100%')
+		thead
+			tr
+				th(style='width:90%') 
+					button.btn.btn-default.btn-sm.fa.fa-plus(type='button'  onClick="addTableRow('finOfficersTable');") Financial Officer
+					
+				th(style='width:10%')
+		tbody
+			tr(style='display:none;')
+				td
+					select(style={width: '100%'} id='finOfficers' name='finOfficers' data-placeholder='')
+						each item in contacts
+							option(value=item.ContactID) #{item.FullName}
+
+			if (finReps)
+				each ci in finOfficers
+					tr(id = `${ci.SubProjectFinOfficerID}` )
+						td
+							select(style={width: '100%'} id='finOfficers' name='finOfficers' data-placeholder='')
+								each item in contacts
+									option(value=item.ContactID selected=ci.ContactID==item.ContactID) #{item.FullName}

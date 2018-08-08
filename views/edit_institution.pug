@@ -1,0 +1,137 @@
+include layouts/header
+include institutionbody
+include mixins/childInstitutionsTable
+include mixins/modal-delete-record
+include mixins/modal-save-record
+include mixins/projectByInstitutionTable
+include mixins/peopleByInstitutionTable
+include mixins/projectByInsCoFundersTable
+include mixins/modal-delete-alert
+include mixins/modal-validation-alert
+
+.container.page-data
+	form.form-horizontal(id="edit_institution" method="post" action="/institutions/edit" enctype="multipart/form-data")
+				
+		.div(style={'margin-top': '70px', 'margin-bottom': '70px'})
+			input.form-control(type='hidden' id='idx' name='idx' value=data.InstitutionID)
+			
+			.form-group.form-row(style={'padding-left': '0px', 'padding-right': '0px'})
+				.col-md-12.mygroupheader
+					.h5 INSTITUTION
+						.btn-group-sm.float-right(role="group")
+							button.btn.btn-primary.fa.fa-arrow-left#cancel(type='button') 
+							button.btn.btn-primary.fa.fa-save#saveRecord(type='button' data-toggle="modal" data-target=".save-record")
+							button.btn.btn-primary.fa.fa-trash#delete(type='button' data-toggle="modal" data-target=".delete-record") 
+					
+			.editAdSection
+				+institutionbody(data)
+
+
++modal-delete-record
++modal-save-record
++modal-delete-alert
++modal-validation-alert
+
+script(type='text/javascript').
+	$(document).ready(function() {
+
+		var needToConfirm = false; 
+		$("select,input,textarea").change(function() {
+			needToConfirm = true;
+		});
+		$(window).on("beforeunload", function(e) {
+			if(needToConfirm==true) {
+				var message = "Are you sure you want to leave?";
+				e.returnValue = message;
+				return message;
+			}
+			return;
+		});
+
+
+	$('#MOUStartDate,#MOUEndDate,#MOUExtendedOnDate').datepicker({ autoclose: true, dateFormat: 'M d, yy', todayHighlight: true });
+
+
+		$("body").on("click", "#delete-confirm", deleteRecord);	
+		$("body").on("click", "#cancel", cancel);	
+
+		localStorage.removeItem("editedInstitutionCommReps");
+		localStorage.removeItem("deletedInstitutionCommReps");
+
+		addImagesToTableRows('institutionCommRepTable');
+
+		formSecurity('Institution');
+
+		$('#save-confirm').click(function(e){
+			if (!FormValidation()) {return;}
+			
+			e.preventDefault();
+			needToConfirm = false; 
+			$(window).off("beforeunload");
+
+			var formData = {
+						'name' : $('input[name=InstitutionName]').val(),
+						'acronym' : $('input[name=Acronym]').val(),
+						'institutionID' : $('input[name=idx]').val()
+			};
+			
+			$.ajax({
+				type     : 'POST', 
+				url      : '/institution_edit_validate', 
+				data     : formData, 
+				dataType : 'json', 
+				encode   : true
+			}).done(function(data) {
+					console.log(data.Qty); 
+					if ( data.Qty=='0') {SaveInstitution(); } 
+					else { $('#modal-validation-alert').modal('toggle'); }
+			});
+		});
+
+
+		function SaveInstitution() {
+			var actionurl = '/institutions/edit';
+			var formData =  $("#edit_institution").serializeArray();
+			var institutionID = $('input[name="idx"]').val();
+			$.ajax({
+				url: actionurl+'/'+institutionID,
+				type: 'post',
+				data: formData,
+				success: function(data) {
+					console.log('success');
+					window.location = data;
+				},
+				error: function() { console.log('error');}
+			});
+		};
+
+
+	});
+
+
+
+	function deleteRecord(e) {
+			var InstitutionID = $('input[name="idx"]').val();									
+			console.log('delete record == ' + InstitutionID);
+
+			var formData = { 'InstitutionID' : InstitutionID };
+			
+			$.ajax({
+				type     : 'POST', 
+				url      : '/institution_delete_validate', 
+				data     : formData, 
+				dataType : 'json', 
+				encode   : true
+			}).done(function(data) {
+					console.log(data.Qty); 
+					if ( data.Qty=='0') {
+									window.location.href = '/institutions/delete/' + InstitutionID;
+					} 
+					else { $('#modal-delete-alert').modal('toggle'); }
+			});  
+	};
+
+	function cancel() {
+		window.location.href = '/institutions';  
+
+	};

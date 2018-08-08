@@ -1,0 +1,56 @@
+mixin subprojectbody(subproject,subProjectBudget)
+
+	fieldset.mygroup
+		legend.mygroup Main
+		.form-group.form-row
+			label.col-sm-2.col-form-label(for='SubProjectName' ) Sub-Project Name
+			.col-sm
+				input.form-control(type='text' id='SubProjectName' name='SubProjectName' value=((subproject) ? subproject.SubProjectName : '') required)
+
+		.form-group.form-row
+			.col-4
+				+principalInvestigatorsTable(contacts,principalInvestigators)
+
+		.form-group.form-row
+			.col-4
+				+coInvestigatorsTable(contacts,coInvestigators)
+			.col-4
+				+collaboratorsTable(contacts,collaborators)
+
+			.col-4
+				+otherPersonnelTable(otherPersonnel,contacts)
+
+
+	fieldset.mygroup
+		legend.mygroup Budget
+		.form-group.form-row
+			.col-sm-6
+				.row 
+					label.col-sm-4.col-form-label(for='TotalAmountAwarded' ) Total Amount Awarded
+					.col-sm-6
+						input.form-control(type='text' id='TotalAmountAwarded' name='TotalAmountAwarded' value=((subproject) ? subproject.TotalAmountAwarded : '') readonly)
+			
+			.col-sm-6
+				.row 
+					label.col-sm-6.col-form-label(for='TFRIAmount' style={'text-align': 'right;'}) TFRI Amount
+					.col-sm-6
+						input.form-control(type='text' id='TFRIAmount' name='TFRIAmount' value=((subproject) ? subproject.TFRIAmount : '') readonly)
+
+		.form-group.form-row
+			+subProjectCoFundersTable(institutions,managed,subProjectCoFunders)
+
+		.form-group.form-row
+			+subProjectBudgetTable(contacts,institutions,managed,subProjectBudget)
+
+	fieldset.mygroup
+		legend.mygroup Additional Info
+		.form-group.form-row
+			.col-sm-6
+				label.col-sm.col-form-label(for='SubProjectDescription' ) Sub-Project Description
+				textarea.form-control(rows='5' id='SubProjectDescription' name='SubProjectDescription')
+					| #{((subproject) ? subproject.SubProjectDescription : '')}
+					
+			.col-sm-6
+				label.col-sm.col-form-label(for='Notes' ) Notes
+				textarea.form-control(rows='5' id='Notes' name='Notes')
+					| #{((subproject) ? subproject.Notes : '')}

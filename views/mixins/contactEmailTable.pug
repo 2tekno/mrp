@@ -1,0 +1,25 @@
+
+mixin contactEmail(list)
+
+     
+    table#contactEmailTable.table-bordered(style='width:100%; table-layout:fixed;')
+            thead
+                tr
+                    th(style='width:80%') 
+                        button.btn.btn-default.btn-sm.fa.fa-plus(type='button'  onClick="addTableRow('contactEmailTable');") Email
+                    th(style='width:10%') Primary
+                    th(style='width:10%')    
+            tbody
+                tr(style='display:none;')
+                    td
+                        input(type="text" name="Email"  value="" style={'width': '100%'})
+                    td
+                        input(type="checkbox" id="Primary" name="Primary" checked=false style={'width': '100%'})
+
+                if (list)
+                    each item in list
+                        tr(id = `${item.ContactEmailID}` )
+                            td
+                                input(type="text" name="Email"  value=item.Email style={'width': '100%'})
+                            td
+                                input(type="checkbox" id="Primary" name="Primary"  checked=(item.Primary==true ? true : false) style={'width': '100%'})

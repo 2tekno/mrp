@@ -1,0 +1,14 @@
+mixin modal-delete-alert
+
+	.modal.fade#modal-delete-alert(tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true")
+		.modal-dialog.modal-dialog-centered
+			.modal-content
+				.modal-header
+					.h5.modal-title Data validation
+				.modal-body
+					| This record cannot be deleted! 
+				.modal-footer
+					button.btn.btn-primary(type='button' data-dismiss="modal") OK
+
+
+				

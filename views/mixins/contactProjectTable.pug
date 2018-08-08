@@ -1,0 +1,19 @@
+mixin contactProjectTable(contactProjects)
+
+	table#contactProjectTable.table-bordered(style='width:100%')
+		thead
+			tr
+				th(style='width:15%') Project #
+				th(style='width:40%') Project Name
+				th(style='width:45%') Role
+
+		tbody
+			if (contactProjects)
+				each item in contactProjects
+					tr
+						td 
+							p #{item.ProjectNumber}
+						td 
+							p #{item.ProjectShortName.substring(0,100)}
+						td 
+							p #{item.ProjectRole}

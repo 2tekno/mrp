@@ -1,0 +1,44 @@
+mixin subProjectCoFundersTable(institutions,managed,subProjectCoFunders) 
+
+	
+	table#subProjectCoFundersTable.table-bordered(style='width:100%')
+		thead
+			tr
+				th(style='width:70%') Co-Funder
+				th(style='width:15%') Managed		
+				th(style='width:15%') Amount
+
+		tbody
+			tr(style='display:none;')
+				td
+					select(style={width: '100%'} id='subProjectCoFunders' name='subProjectCoFunders' data-placeholder='')
+						each item in institutions
+							option(value=item.InstitutionID) #{item.InstitutionName}
+
+				td
+					select(style={width: '100%'} id='managed' name='managed' data-placeholder='')
+						each item in institutions
+							option #{item.Managed}
+				td
+					input(type="text" name="budgetamount" value='')
+
+			if (subProjectCoFunders)
+				each ci in subProjectCoFunders
+					tr(id = `${ci.SubProjectCoFunderID}` )
+						td
+							select(style={width: '100%'} id='subProjectCoFunders' name='subProjectCoFunders' data-placeholder='')
+								each item in institutions
+									option(value=item.InstitutionID selected=ci.InstitutionID==item.InstitutionID) #{item.InstitutionName}
+
+						td
+							select(style={width: '100%'} id='managed' name='managed' data-placeholder='')
+								each item in Managed
+									option(value=item.Managed selected=ci.Managed==item.Managed) #{item.Managed}
+
+						td
+							input(type="text" style={width: '100%'} name="budgetamount" value=ci.BudgetAmount.toFixed(2))
+		
+		tfoot.foot
+			td.font-weight-bold(colspan="2") Total:
+			td
+				input(type="text" style={width: '100%'} name="Total" readonly).numbersOnly

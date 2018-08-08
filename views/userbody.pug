@@ -1,0 +1,69 @@
+mixin userbody(data)
+
+	fieldset.mygroup.col-8
+		legend.mygroup Main
+		.form-group.form-row
+			label.col-sm-4.col-form-label(for='Login' ) Login Name
+			.col-sm-6
+				input.form-control(type='text' id='UserName' name='UserName'  placeholder='login name' value=((data) ? data.UserName : '') required)
+
+		.form-group.form-row
+			label.col-sm-4.col-form-label(for='Password' ) Password
+			.col-sm-6
+				input.form-control(type='password' id='Password' name='Password'  placeholder='password' value=((data) ? data.Password : '') required)
+
+		.form-group.form-row
+			label.col-sm-4.col-form-label(for='ConfirmPassword' ) Confirm Password
+			.col-sm-6
+				input.form-control(type='password' id='ConfirmPassword' name='ConfirmPassword'  placeholder='password' value=((data) ? data.Password : '') required)
+
+		.form-group.form-row
+			label.col-sm-4.col-form-label(for='Email' ) Email
+			.col-sm-6
+				input.form-control(type='text' id='Email' name='Email'  placeholder='Email' value=((data) ? data.Email : '') required)
+
+		.form-group.form-row
+			label.col-sm-4.col-form-label(for='FName' ) First Name
+			.col-sm-6
+				input.form-control(type='text' id='FName' name='FName'  value=((data) ? data.FName : '') )
+
+		.form-group.form-row
+			label.col-sm-4.col-form-label(for='LName' ) Last Name
+			.col-sm-6
+				input.form-control(type='text' id='FName' name='LName'   value=((data) ? data.LName : '') )
+
+		.form-group.form-row
+			label.col-sm-4.col-form-label(for='ChangePasswordWhenLogin' ) Change Password In Next Login
+			.col-sm-6
+				if (enumYesNo)
+					select.form-control(id = `ChangePasswordWhenLogin` name='ChangePasswordWhenLogin')
+						each item in enumYesNo
+							option(value=item.Id selected=((data) ? data.ChangePasswordWhenLogin==item.Id : '1')) #{item.Text}
+
+		.form-group.form-row
+			label.col-sm-4.col-form-label(for='IsAdmin' ) Is Admin
+			.col-sm-6
+				if (enumYesNo)
+					select.form-control(id = `IsAdmin` name='IsAdmin')
+						each item in enumYesNo
+							option(value=item.Id selected=((data) ? data.IsAdmin==item.Id : NULL)) #{item.Text}
+
+		.form-group.form-row
+			label.col-sm-4.col-form-label(for='Inactive' ) Inactive
+			.col-sm-6
+				if (enumYesNo)
+					select.form-control(id = `Inactive` name='Inactive')
+						each item in enumYesNo
+							option(value=item.Id selected=((data) ? data.Inactive==item.Id : NULL)) #{item.Text}
+
+	fieldset.mygroup.col-8
+		legend.mygroup Field Groups Permissions
+		.form-group.form-row
+
+			if (permissions)
+				each per in permissions
+					label.col-sm-4.col-form-label(for='GroupName' ) #{per.GroupName}
+					.col-sm-6
+						select.form-control(id = `${per.UPGID}` name='secLevel'+`${per.UPGID}`)
+							each item in accessLevelArray
+								option(value=item.Id selected=item.Id==per.RoleID) #{item.Text}
