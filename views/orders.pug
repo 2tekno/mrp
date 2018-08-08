@@ -13,8 +13,8 @@ include layouts/header
 						th OrderNo
 						th Order Date
 						th Name
+                        th Status
 						th Total
-
 						th
 					tbody
 
@@ -38,8 +38,9 @@ script(type='text/javascript').
 							},
 				"columns": [ 
 					{"data": "OrderNo","width": "8%"},
-					{"data": "OrderDate","width": "40%"},
+					{"data": "OrderDate","width": "10%"},
 					{"data": "Name","width": "30%"},
+                    {"data": "OrderStatus","width": "10%"},
 					{"data": "Total","width": "10%", "sClass": "numbersOnly",
 						render: $.fn.dataTable.render.number(',', '.', 2, '')},
 					{"targets": -1,

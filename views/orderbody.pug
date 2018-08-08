@@ -1,0 +1,33 @@
+mixin orderbody(order)
+
+	ul.nav.nav-tabs(role="tablist")
+		li.nav-item
+			a.nav-link.active(href="#overview", role="tab", data-toggle="tab" ) Order Overview
+
+	.tab-content(style={'margin-top':'20px'})
+		.tab-pane.active(id="overview" role="tabpanel")
+
+			fieldset.mygroup
+				legend.mygroup Main
+				.row
+					label.col-sm-2.col-form-label(for='OrderNo' ) Order Number
+					.col-sm
+						input.form-control(type='text' id='OrderNo' name='OrderNo' value=((order) ? order.OrderNo : '')   required  )
+
+
+					label.col-sm-2.col-form-label(for='ProgramType' style={'text-align': 'right;'}) Order Status
+					.col-sm-4
+						select.form-control(id='OrderStatusID' name='OrderStatusID' data-placeholder='')
+							each item in orderStatus
+								option(value=item.ID selected=((order) ? order.OrderStatusID==item.ID : NULL)) #{item.Description}
+		
+
+			fieldset.mygroup
+				legend.mygroup Misc
+				.row
+					.col-sm-5
+						.row
+							label.col-sm-6.col-form-label(for='LetterOfOfferDate' ) Letter of Offer Date
+							.col-sm-6
+								input.form-control(type='text' id='LetterOfOfferDate' name='LetterOfOfferDate' value=((project) ? project.LetterOfOfferDate : '') )
+
