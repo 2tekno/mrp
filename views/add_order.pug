@@ -1,7 +1,7 @@
 include layouts/header
 include mixins/modal-save-record
 include orderbody
-include mixins/modal-validation-alert
+include mixins/modal-select-product
 
 .container.page-data
 	form.form-horizontal(id="add_order" method="post" action="/orders/add" enctype="multipart/form-data")
@@ -15,12 +15,12 @@ include mixins/modal-validation-alert
 							button.btn.btn-primary.fa.fa-save(type='button' data-toggle="modal" data-target=".save-record")
 
 			.editAdSection
-				+projectbody(project,keywords)
+				button.btn.btn-primary.btn-sm#addNewProduct(type='button' name='addNewProduct') Add New Product
+				+orderbody(project,keywords)
 
 
 +modal-save-record
-+modal-goto-subproject
-+modal-validation-alert
++modal-select-product
 
 script(type='text/javascript').
 	$(document).ready(function() {
@@ -41,9 +41,20 @@ script(type='text/javascript').
 		});
 
 
+		$('#addNewProduct').click(function(e){	
+			//$('input[name="selectedproductid"]').val(0);
+			$('#modal-select-product').modal('toggle');
+		});
+
+		$('#product-confirm').click(function(e){
+			var productID = $('input[name="selectedproductid"]').val();	
+			console.log(productID);
+		});
+
+
 		$('#save-confirm').click(function(e){
 			e.preventDefault();
-            Save(); 
+			Save(); 
 		});
 
 
@@ -70,6 +81,53 @@ script(type='text/javascript').
 					error: function() {	console.log('error');} 
 			});
 		};
+
+
+	//-------------------------------
+
+		var table = $('#productTable').DataTable( {
+				"lengthMenu": [[25, 50, -1], [25, 50, "All"]],
+				"bPaginate": true,
+				"bLengthChange": false,
+				"ajax": {
+							"type"   : "GET",
+							"url"    : '/allproducts',
+							"dataSrc": ""
+							},
+				"columns": [ 
+					{"data": "ItemNumber","width": "20%"},
+					{"data": "Description","width": "80%"},
+					{"targets": -1,
+						"data": null,
+						 "defaultContent": "<a style='margin-left:1em;' id='edit' class='fa fa-pencil' href=''></a>"  
+						} 
+					]									  
+		});
+		
+		//- $('#productTable tbody').on( 'click', '#edit', function () {
+		//- 	var data = table.row( $(this).parents('tr') ).data();
+		//- 	window.location.href = '/orders/edit/' + data['OrderID'];
+		//- 	return false;
+		//- } );
+
+		$('#productTable tbody').on( 'click', 'tr', function () {
+
+				if ( $(this).hasClass('selected') ) {
+					$(this).removeClass('selected');
+				}
+				else {
+					table.$('tr.selected').removeClass('selected');
+					$(this).addClass('selected');
+					var data = table.row( $(this) ).data();
+					var productID = data['Id'];
+					$('input[name="selectedproductid"]').val(productID);	
+				}
+		} );
+
+
+	//-------------------------------
+
+
 	});
 
 	function cancel() {

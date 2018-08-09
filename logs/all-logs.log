@@ -4,3 +4,10 @@
 2018-08-08T21:45:00.700Z - error: Error selecting from vwPOrderList table: RequestError: The SELECT permission was denied on the object 'vwPOrderList', database 'MRPTEST', schema 'dbo'. 
 2018-08-08T21:45:05.527Z - error: Error selecting from vwPOrderList table: RequestError: The SELECT permission was denied on the object 'vwPOrderList', database 'MRPTEST', schema 'dbo'. 
 2018-08-08T21:47:08.129Z - debug: Overriding 'Express' logger
+2018-08-09T20:15:25.291Z - debug: Overriding 'Express' logger
+2018-08-09T20:15:59.734Z - error: Error selecting from vwPOrderList table: RequestError: Could not use view or function 'vwPOrderList' because of binding errors. 
+2018-08-09T20:16:15.178Z - error: Error selecting from vwPOrderList table: RequestError: Could not use view or function 'vwPOrderList' because of binding errors. 
+2018-08-09T20:24:10.680Z - debug: Overriding 'Express' logger
+2018-08-09T21:27:06.243Z - debug: Overriding 'Express' logger
+2018-08-09T21:29:06.228Z - debug: Overriding 'Express' logger
+2018-08-09T22:05:14.396Z - debug: Overriding 'Express' logger

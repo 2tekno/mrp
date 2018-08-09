@@ -6,12 +6,15 @@ var orders = require('./orders');
 module.exports = function(app, passport) {
 
 
+  app.get('/orders/add', orders.renderAddNewOrder);
 
   app.get('/orders', function(req, res) {
     res.render('orders');
   });
 
   app.get('/allorders', orders.allorders);
+  app.get('/allproducts', orders.allproducts);
+  
 
 
 

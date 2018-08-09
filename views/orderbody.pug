@@ -11,23 +11,19 @@ mixin orderbody(order)
 				legend.mygroup Main
 				.row
 					label.col-sm-2.col-form-label(for='OrderNo' ) Order Number
-					.col-sm
+					.col-sm-4
 						input.form-control(type='text' id='OrderNo' name='OrderNo' value=((order) ? order.OrderNo : '')   required  )
 
-
-					label.col-sm-2.col-form-label(for='ProgramType' style={'text-align': 'right;'}) Order Status
+				.row
+					label.col-sm-2.col-form-label(for='OrderStatus') Order Status
 					.col-sm-4
 						select.form-control(id='OrderStatusID' name='OrderStatusID' data-placeholder='')
 							each item in orderStatus
 								option(value=item.ID selected=((order) ? order.OrderStatusID==item.ID : NULL)) #{item.Description}
 		
-
-			fieldset.mygroup
-				legend.mygroup Misc
 				.row
-					.col-sm-5
-						.row
-							label.col-sm-6.col-form-label(for='LetterOfOfferDate' ) Letter of Offer Date
-							.col-sm-6
-								input.form-control(type='text' id='LetterOfOfferDate' name='LetterOfOfferDate' value=((project) ? project.LetterOfOfferDate : '') )
-
+					label.col-sm-2.col-form-label(for='Vendor' ) Vendor
+					.col-sm-4
+						select.form-control(id='VendorID' name='VendorID' data-placeholder='')
+							each item in vendors
+								option(value=item.ID selected=((order) ? order.VendorID==item.ID : NULL)) #{item.Name}
