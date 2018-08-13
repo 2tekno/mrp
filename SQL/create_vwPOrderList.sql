@@ -16,11 +16,11 @@ order by OrderNo desc
 
 CREATE view [dbo].[vwPOrderList] as 
 
-select 
+SELECT 
  a.Id
 ,a.OrderNo
-,a.OrderDate
-,a.DeliveryDate
+,OrderDate = FORMAT(a.OrderDate, 'yyyy-MM-dd')
+,DeliveryDate = FORMAT(a.DeliveryDate, 'yyyy-MM-dd')
 ,a.Total
 ,a.IsConfirmed
 ,b.Name

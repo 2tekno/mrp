@@ -23,7 +23,25 @@ exports.allorders = function(req, res) {
   });
 }
 
+exports.allordersSS = function(req, res) {
+    var input = JSON.parse(JSON.stringify(req.body));
+    var sEcho = input.sEcho;
+	sql.connect(config.connection, function(err) {
+		var request = new sql.Request();
+		request.query("SELECT DT_RowId=Id,* FROM vwPOrderList", function(err, data) {
+          if(err) logger.error("Error selecting from vwPOrderList table: %s ", err);
+          var iTotalRecords = data.length;
+          console.log('records: ' + iTotalRecords);
 
+          var returnObj = {
+            aaData: data,
+            iTotalRecords: iTotalRecords,
+            iTotalDisplayRecords: iTotalRecords
+          }
+          res.send(returnObj);
+		});
+  });
+}
 
 exports.renderAddNewOrder = function (req, res) {
 

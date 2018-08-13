@@ -1,13 +1,11 @@
-2018-08-08T21:43:03.224Z - debug: Overriding 'Express' logger
-2018-08-08T21:44:23.205Z - error: Error selecting from vwPOrderList table: RequestError: The SELECT permission was denied on the object 'vwPOrderList', database 'MRPTEST', schema 'dbo'. 
-2018-08-08T21:44:39.637Z - error: Error selecting from vwPOrderList table: RequestError: The SELECT permission was denied on the object 'vwPOrderList', database 'MRPTEST', schema 'dbo'. 
-2018-08-08T21:45:00.700Z - error: Error selecting from vwPOrderList table: RequestError: The SELECT permission was denied on the object 'vwPOrderList', database 'MRPTEST', schema 'dbo'. 
-2018-08-08T21:45:05.527Z - error: Error selecting from vwPOrderList table: RequestError: The SELECT permission was denied on the object 'vwPOrderList', database 'MRPTEST', schema 'dbo'. 
-2018-08-08T21:47:08.129Z - debug: Overriding 'Express' logger
-2018-08-09T20:15:25.291Z - debug: Overriding 'Express' logger
-2018-08-09T20:15:59.734Z - error: Error selecting from vwPOrderList table: RequestError: Could not use view or function 'vwPOrderList' because of binding errors. 
-2018-08-09T20:16:15.178Z - error: Error selecting from vwPOrderList table: RequestError: Could not use view or function 'vwPOrderList' because of binding errors. 
-2018-08-09T20:24:10.680Z - debug: Overriding 'Express' logger
-2018-08-09T21:27:06.243Z - debug: Overriding 'Express' logger
-2018-08-09T21:29:06.228Z - debug: Overriding 'Express' logger
-2018-08-09T22:05:14.396Z - debug: Overriding 'Express' logger
+2018-08-13T20:57:43.787Z - debug: Overriding 'Express' logger
+2018-08-13T21:10:46.795Z - debug: Overriding 'Express' logger
+2018-08-13T21:11:52.207Z - debug: Overriding 'Express' logger
+2018-08-13T21:15:13.537Z - debug: Overriding 'Express' logger
+2018-08-13T21:17:26.356Z - debug: Overriding 'Express' logger
+2018-08-13T21:21:19.535Z - debug: Overriding 'Express' logger
+2018-08-13T21:24:20.940Z - debug: Overriding 'Express' logger
+2018-08-13T21:24:23.750Z - error: uncaughtException: Unexpected token o in JSON at position 1 date=Mon Aug 13 2018 14:24:23 GMT-0700 (Pacific Daylight Time), pid=32128, uid=null, gid=null, cwd=C:\app-node\mrp, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.4, argv=[C:\Program Files\nodejs\node.exe, C:\app-node\mrp\server], rss=61943808, heapTotal=57794560, heapUsed=24303016, external=210899, loadavg=[0, 0, 0], uptime=2922725.3491313, trace=[column=null, file=null, function=JSON.parse, line=null, method=parse, native=false, column=25, file=C:\app-node\mrp\app\orders.js, function=null, line=42, method=null, native=false, column=20, file=C:\app-node\mrp\node_modules\mssql\lib\main.js, function=null, line=1588, method=null, native=false, column=61, file=C:\app-node\mrp\node_modules\mssql\lib\tedious.js, function=Request.userCallback, line=853, method=userCallback, native=false, column=27, file=C:\app-node\mrp\node_modules\mssql\node_modules\tedious\lib\request.js, function=Request.callback, line=33, method=callback, native=false, column=27, file=C:\app-node\mrp\node_modules\mssql\node_modules\tedious\lib\connection.js, function=Connection.message, line=1179, method=message, native=false, column=45, file=C:\app-node\mrp\node_modules\mssql\node_modules\tedious\lib\connection.js, function=Connection.dispatchEvent, line=519, method=dispatchEvent, native=false, column=23, file=C:\app-node\mrp\node_modules\mssql\node_modules\tedious\lib\connection.js, function=null, line=439, method=null, native=false, column=13, file=events.js, function=emitNone, line=106, method=null, native=false, column=7, file=events.js, function=MessageIO.emit, line=208, method=emit, native=false], stack=[SyntaxError: Unexpected token o in JSON at position 1,     at JSON.parse (<anonymous>),     at C:\app-node\mrp\app\orders.js:42:25,     at C:\app-node\mrp\node_modules\mssql\lib\main.js:1588:20,     at Request.userCallback (C:\app-node\mrp\node_modules\mssql\lib\tedious.js:853:61),     at Request.callback (C:\app-node\mrp\node_modules\mssql\node_modules\tedious\lib\request.js:33:27),     at Connection.message (C:\app-node\mrp\node_modules\mssql\node_modules\tedious\lib\connection.js:1179:27),     at Connection.dispatchEvent (C:\app-node\mrp\node_modules\mssql\node_modules\tedious\lib\connection.js:519:45),     at MessageIO.<anonymous> (C:\app-node\mrp\node_modules\mssql\node_modules\tedious\lib\connection.js:439:23),     at emitNone (events.js:106:13),     at MessageIO.emit (events.js:208:7)]
+2018-08-13T21:24:59.297Z - debug: Overriding 'Express' logger
+2018-08-13T21:39:10.222Z - debug: Overriding 'Express' logger
+2018-08-13T21:51:02.095Z - debug: Overriding 'Express' logger

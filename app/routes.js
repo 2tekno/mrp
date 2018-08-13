@@ -15,7 +15,7 @@ module.exports = function(app, passport) {
   app.get('/allorders', orders.allorders);
   app.get('/allproducts', orders.allproducts);
   
-
+  app.get('/allordersSS', orders.allordersSS);
 
 
 

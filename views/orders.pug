@@ -7,7 +7,7 @@ include layouts/header
 		.col-sm-12(style={'margin-top':'10px'})
 			button.btn.btn-primary.btn-sm#addNewOrder(type='button' name='addNewOrder') Add New
 		.col-sm-12(style={'margin-top':'10px'})
-			table#allOrdersTable.row-border.hover.order-column
+			table#allOrdersTable.row-border.hover.order-column(style='width:100%;')
 				thead
 					tr
 						th OrderNo
@@ -27,32 +27,59 @@ script(type='text/javascript').
 
 		$('#addNewOrder').click(function(e){   window.location.href = '/orders/add';  });
 
+
 		var table = $('#allOrdersTable').DataTable( {
-				"lengthMenu": [[25, 50, -1], [25, 50, "All"]],
-				"bPaginate": true,
-				"bLengthChange": true,
-				"ajax": {
-							"type"   : "GET",
-							"url"    : '/allorders',
-							"dataSrc": ""
-							},
-				"columns": [ 
-					{"data": "OrderNo","width": "8%"},
-					{"data": "OrderDate","width": "10%"},
-					{"data": "Name","width": "30%"},
-					{"data": "OrderStatus","width": "10%"},
-					{"data": "Total","width": "10%", "sClass": "numbersOnly",
+				"dServerSide": true,
+				"bProcessing": true,
+				"sAjaxSource": "/allordersSS",
+				"sServerMethod": "GET",
+				"sAjaxDataProp": "aaData",
+				"aoColumns": [
+					{"mData": "OrderNo","width": "10%"},
+					{"mData": "OrderDate","width": "10%"},
+					{"mData": "Name","width": "40%"},
+					{"mData": "OrderStatus","width": "10%"},
+					{"mData": "Total","width": "10%", "sClass": "numbersOnly",
 						render: $.fn.dataTable.render.number(',', '.', 2, '')},
 					{"targets": -1,
-						"data": null,
+						"mData": null,
 						 "defaultContent": "<a style='margin-left:1em;' id='edit' class='fa fa-pencil' href=''></a>"  
 						} 
-					]									  
+				]
 		});
+
+		//- var table = $('#allOrdersTable').DataTable( {
+		//- 		"lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+		//- 		"bPaginate": true,
+		//- 		"bLengthChange": true,
+		//- 		"ajax": {
+		//- 					"type"   : "GET",
+		//- 					"url"    : '/allorders',
+		//- 					"dataSrc": "",
+		//- 					success:function(data){
+		//- 						console.log(data);
+		//- 					}
+		//- 					},
+		//- 		"columns": [ 
+		//- 			{"data": "OrderNo","width": "10%"},
+		//- 			{"data": "OrderDate","width": "10%"},
+		//- 			{"data": "Name","width": "40%"},
+		//- 			{"data": "OrderStatus","width": "10%"},
+		//- 			{"data": "Total","width": "10%", "sClass": "numbersOnly",
+		//- 				render: $.fn.dataTable.render.number(',', '.', 2, '')},
+		//- 			{"targets": -1,
+		//- 				"data": null,
+		//- 				 "defaultContent": "<a style='margin-left:1em;' id='edit' class='fa fa-pencil' href=''></a>"  
+		//- 				} 
+		//- 			]									  
+		//- });
 		
 		$('#allOrdersTable tbody').on( 'click', '#edit', function () {
 			var data = table.row( $(this).parents('tr') ).data();
-			window.location.href = '/orders/edit/' + data['OrderID'];
+
+			alert(data['Id']);
+			//window.location.href = '/orders/edit/' + data['Id'];
+
 			return false;
 		} );
 
