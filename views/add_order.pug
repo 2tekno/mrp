@@ -86,23 +86,43 @@ script(type='text/javascript').
 	//-------------------------------
 
 		var table = $('#productTable').DataTable( {
-				"lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
-				"bPaginate": true,
-				"bLengthChange": false,
-				"ajax": {
-							"type"   : "GET",
-							"url"    : '/allproducts',
-							"dataSrc": ""
-							},
-				"columns": [ 
-					{"data": "ItemNumber","width": "20%"},
-					{"data": "Description","width": "80%"},
+				"dServerSide": true,
+				"bProcessing": true,
+				"sAjaxSource": "/allproductsSS",
+				"sServerMethod": "GET",
+				"sAjaxDataProp": "aaData",
+				"aoColumns": [
+					{"mData": "ItemNumber","width": "20%"},
+					{"mData": "Description","width": "80%"},
 					{"targets": -1,
-						"data": null,
+						"mData": null,
 						 "defaultContent": "<a style='margin-left:1em;' id='edit' class='fa fa-pencil' href=''></a>"  
 						} 
-					]									  
+				]
 		});
+
+
+
+	//-------------------------------
+
+		//- var table = $('#productTable').DataTable( {
+		//- 		"lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+		//- 		"bPaginate": true,
+		//- 		"bLengthChange": false,
+		//- 		"ajax": {
+		//- 					"type"   : "GET",
+		//- 					"url"    : '/allproducts',
+		//- 					"dataSrc": ""
+		//- 					},
+		//- 		"columns": [ 
+		//- 			{"data": "ItemNumber","width": "20%"},
+		//- 			{"data": "Description","width": "80%"},
+		//- 			{"targets": -1,
+		//- 				"data": null,
+		//- 				 "defaultContent": "<a style='margin-left:1em;' id='edit' class='fa fa-pencil' href=''></a>"  
+		//- 				} 
+		//- 			]									  
+		//- });
 		
 		//- $('#productTable tbody').on( 'click', '#edit', function () {
 		//- 	var data = table.row( $(this).parents('tr') ).data();

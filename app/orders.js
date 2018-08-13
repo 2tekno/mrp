@@ -3,6 +3,22 @@ var config = require('../config/database');
 var logger = require('winston'); 
 
 
+exports.allproductsSS = function(req, res) {
+	sql.connect(config.connection, function(err) {
+		var request = new sql.Request();
+		request.query("SELECT * FROM Products ORDER BY Description", function(err, data) {
+          if(err) logger.error("Error selecting from Products table: %s ", err);
+          var iTotalRecords = data.length;
+          var returnObj = {
+            aaData: data,
+            iTotalRecords: iTotalRecords,
+            iTotalDisplayRecords: iTotalRecords
+          }
+          res.send(returnObj);
+		});
+  });
+}
+
 exports.allproducts = function(req, res) {
 	sql.connect(config.connection, function(err) {
 		var request = new sql.Request();
