@@ -27,3 +27,16 @@ mixin orderbody(order)
 						select.form-control(id='VendorID' name='VendorID' data-placeholder='')
 							each item in vendors
 								option(value=item.ID selected=((order) ? order.VendorID==item.ID : NULL)) #{item.Name}
+
+				.row(style={'margin-top':'20px'})
+					.col-sm-12(style={'margin-top':'10px'})
+						table#orderItemsTable.row-border.hover.order-column(style='width:100%;')
+							thead
+								tr
+									th Item Number
+									th Item Description
+									th Price
+									th Qty
+									th Total
+									th
+								tbody

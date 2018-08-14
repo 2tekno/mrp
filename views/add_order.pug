@@ -25,9 +25,11 @@ include mixins/modal-select-product
 script(type='text/javascript').
 	$(document).ready(function() {
 
+		var productRow;
+		var needToConfirm = false; 
+
 		$("body").on("click", "#cancel", cancel);	
 
-		var needToConfirm = false; 
 		$("select,input,textarea").change(function() {
 			needToConfirm = true;
 		});
@@ -42,14 +44,48 @@ script(type='text/javascript').
 
 
 		$('#addNewProduct').click(function(e){	
-			//$('input[name="selectedproductid"]').val(0);
 			$('#modal-select-product').modal('toggle');
 		});
 
 		$('#product-confirm').click(function(e){
 			var productID = $('input[name="selectedproductid"]').val();	
 			console.log(productID);
+			console.log(productRow);
 		});
+
+		$('#orderItemsTable tbody').on( 'click', 'tr', function () {
+			if ( $(this).hasClass('selected') ) {
+				$(this).removeClass('selected');
+			}
+			else {
+				orderItemsTable.$('tr.selected').removeClass('selected');
+				$(this).addClass('selected');
+			}
+		});
+
+		$('#orderItemsTable tbody').on( 'click', '#remove', function () {
+			orderItemsTable.row('.selected').remove().draw( false );
+			return false;
+		} );
+
+		//- $('#orderItemsTable').on( 'click', 'tbody td', function () {
+		//- 	orderItemsTable.cell( this ).edit();
+		//- });
+
+		$('#productTable tbody').on( 'click', 'tr', function () {
+			var selectedRow = productTable.row(this).data();
+			productRow = {
+				ProductId: selectedRow.Id,
+				Description: selectedRow.Description,
+				ItemNumber: selectedRow.ItemNumber,
+				Price: selectedRow.Price,
+				Qty: 0,
+				Total: 0
+			}
+
+			orderItemsTable.row.add(productRow).draw(false);
+		});
+
 
 
 		$('#save-confirm').click(function(e){
@@ -62,12 +98,10 @@ script(type='text/javascript').
 			needToConfirm = false; 
 			$(window).off("beforeunload");
 
-			var objMetaData;
-			objMetaData = {table: 'projectLeadersTable', 
-							selectorName: 'select[name=projectLeaders]', 
-							editedListName: 'editedProjectLeaders'};
 
 			var formData = 	$("#add_order").serializeArray();
+			var orderItems = $('#orderItemsTable').dataTable().fnGetData();
+			formData.push({name: "orderItems", value: JSON.stringify(orderItems)});
 
 			var actionurl = '/orders/save_new';
 			$.ajax({
@@ -85,7 +119,7 @@ script(type='text/javascript').
 
 	//-------------------------------
 
-		var table = $('#productTable').DataTable( {
+		var productTable = $('#productTable').DataTable( {
 				"dServerSide": true,
 				"bProcessing": true,
 				"sAjaxSource": "/allproductsSS",
@@ -96,14 +130,35 @@ script(type='text/javascript').
 					{"mData": "Description","width": "80%"},
 					{"targets": -1,
 						"mData": null,
-						 "defaultContent": "<a style='margin-left:1em;' id='edit' class='fa fa-pencil' href=''></a>"  
+						 "defaultContent": "<a style='margin-left:1em;' id='edit' class='fa fa-pencil' href=''>"  
 						} 
 				]
 		});
 
-
-
 	//-------------------------------
+
+		var orderItemsTable = $('#orderItemsTable').DataTable( {
+				"lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+				"bPaginate": true,
+				"bLengthChange": false,
+				"columns": [ 
+					{"data": "ItemNumber","width": "15%"},
+					{"data": "Description","width": "35%"},
+					{"data": "Price","width": "10%"},
+					{"data": "Qty","width": "10%"},
+					{"data": "Total","width": "20%"},
+					{"targets": -1,
+						"data": null,
+						 "defaultContent": "<a style='margin-left:1em;' id='edit' class='fa fa-pencil' href=''></a></a><a style='margin-left:1em;' id='remove' class='fa fa-trash' href=''></a>"  
+						} 
+					]									  
+		});
+
+
+
+
+
+	//-----------------------------
 
 		//- var table = $('#productTable').DataTable( {
 		//- 		"lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
@@ -136,9 +191,9 @@ script(type='text/javascript').
 					$(this).removeClass('selected');
 				}
 				else {
-					table.$('tr.selected').removeClass('selected');
+					productTable.$('tr.selected').removeClass('selected');
 					$(this).addClass('selected');
-					var data = table.row( $(this) ).data();
+					var data = productTable.row( $(this) ).data();
 					var productID = data['Id'];
 					$('input[name="selectedproductid"]').val(productID);	
 				}

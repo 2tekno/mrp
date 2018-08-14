@@ -83,42 +83,45 @@ exports.renderAddNewOrder = function (req, res) {
 
 exports.save_new = function(req, res){
     var input = JSON.parse(JSON.stringify(req.body));
-    var GroupName = input.GroupName.replace(/(')/g, "''");
-    var Notes = input.Notes.replace(/(')/g, "''");
 
-    var editedGroupProjects = [];
-    if (input.editedGroupProjects != null) {  editedGroupProjects = JSON.parse(input.editedGroupProjects);  }
+    //console.log('orderItems  == ' + JSON.stringify(input.orderItems));
+    console.log('orderItems  == ' + input.orderItems);
 
-    sql.connect(config.connection, function(err) {
-      var request = new sql.Request();
+    // var Notes = input.Notes.replace(/(')/g, "''");
 
-      request.query("INSERT INTO PeopleGroup (GroupName,Notes) values ('"+GroupName+"','"+Notes+"'); SELECT SCOPE_IDENTITY() AS ID", function(err, rows) {
-        var PeopleGroupID = JSON.stringify(rows[0].ID);
+    // var editedGroupProjects = [];
+    // if (input.editedGroupProjects != null) {  editedGroupProjects = JSON.parse(input.editedGroupProjects);  }
 
+    // sql.connect(config.connection, function(err) {
+    //   var request = new sql.Request();
 
-
-        for(var obj in editedGroupProjects) {
-            if(editedGroupProjects[obj].hasOwnProperty('id')) {
-                  var id = editedGroupProjects[obj]['id'];
-                  var selectedId = editedGroupProjects[obj]['selectedId'];
-                  if (id == "-1") {
-                      request.query("INSERT INTO PeopleGroupProject (PeopleGroupID,ProjectID) VALUES ('" +
-                                    PeopleGroupID +"','"+selectedId+"') ", function(err, rows) {
-                           if (err) logger.error("Error inserting in PeopleGroupProject table: %s ", err);
-                      })
-                  } 
-            }
-        }
+    //   request.query("INSERT INTO PeopleGroup (GroupName,Notes) values ('"+GroupName+"','"+Notes+"'); SELECT SCOPE_IDENTITY() AS ID", function(err, rows) {
+    //     var PeopleGroupID = JSON.stringify(rows[0].ID);
 
 
-         if (err) logger.error("Error inserting into PeopleGroup table: %s ", err);
-         else {
-              res.contentType('application/json');
-              var data = JSON.stringify('/groups');
-              res.header('Content-Length', data.length);
-              res.end(data);
-          }
 
-      });
-    });
+    //     for(var obj in editedGroupProjects) {
+    //         if(editedGroupProjects[obj].hasOwnProperty('id')) {
+    //               var id = editedGroupProjects[obj]['id'];
+    //               var selectedId = editedGroupProjects[obj]['selectedId'];
+    //               if (id == "-1") {
+    //                   request.query("INSERT INTO PeopleGroupProject (PeopleGroupID,ProjectID) VALUES ('" +
+    //                                 PeopleGroupID +"','"+selectedId+"') ", function(err, rows) {
+    //                        if (err) logger.error("Error inserting in PeopleGroupProject table: %s ", err);
+    //                   })
+    //               } 
+    //         }
+    //     }
+
+
+    //      if (err) logger.error("Error inserting into PeopleGroup table: %s ", err);
+    //      else {
+    //           res.contentType('application/json');
+    //           var data = JSON.stringify('/groups');
+    //           res.header('Content-Length', data.length);
+    //           res.end(data);
+    //       }
+
+    //   });
+    // });
 };

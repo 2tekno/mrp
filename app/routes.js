@@ -17,7 +17,7 @@ module.exports = function(app, passport) {
   
   app.get('/allordersSS', orders.allordersSS);
   app.get('/allproductsSS', orders.allproductsSS);
-
+  app.post('/orders/save_new', orders.save_new);
 
 
  app.get('/', function(req, res) {		
