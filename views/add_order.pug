@@ -75,11 +75,12 @@ script(type='text/javascript').
 		$('#productTable tbody').on( 'click', 'tr', function () {
 			var selectedRow = productTable.row(this).data();
 			productRow = {
+				OrderItemID: -1,
 				ProductId: selectedRow.Id,
 				Description: selectedRow.Description,
 				ItemNumber: selectedRow.ItemNumber,
 				Price: selectedRow.Price,
-				Qty: 0,
+				Qty: 3,
 				Total: 0
 			}
 
@@ -150,7 +151,7 @@ script(type='text/javascript').
 					{"targets": -1,
 						"data": null,
 						 "defaultContent": "<a style='margin-left:1em;' id='edit' class='fa fa-pencil' href=''></a></a><a style='margin-left:1em;' id='remove' class='fa fa-trash' href=''></a>"  
-						} 
+						}
 					]									  
 		});
 
