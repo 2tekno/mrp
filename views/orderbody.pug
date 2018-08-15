@@ -1,8 +1,8 @@
 mixin orderbody(order)
 
-	ul.nav.nav-tabs(role="tablist")
-		li.nav-item
-			a.nav-link.active(href="#overview", role="tab", data-toggle="tab" ) Order Overview
+	//- ul.nav.nav-tabs(role="tablist")
+	//- 	li.nav-item
+	//- 		a.nav-link.active(href="#overview", role="tab", data-toggle="tab" ) Order Overview
 
 	.tab-content(style={'margin-top':'20px'})
 		.tab-pane.active(id="overview" role="tabpanel")
@@ -28,8 +28,11 @@ mixin orderbody(order)
 							each item in vendors
 								option(value=item.ID selected=((order) ? order.VendorID==item.ID : NULL)) #{item.Name}
 
+			fieldset.mygroup
+				legend.mygroup Order Items
 				.row(style={'margin-top':'20px'})
 					.col-sm-12(style={'margin-top':'10px'})
+						button.btn.btn-primary.btn-sm.fa.fa-plus#addNewProduct(type='button' name='addNewProduct') Add New Item
 						table#orderItemsTable.row-border.hover.order-column(style='width:100%;')
 							thead
 								tr

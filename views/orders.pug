@@ -5,7 +5,7 @@ include layouts/header
 	.row
 
 		.col-sm-12(style={'margin-top':'10px'})
-			button.btn.btn-primary.btn-sm#addNewOrder(type='button' name='addNewOrder') Add New
+			button.btn.btn-primary.btn-sm.fa.fa-plus#addNewOrder(type='button' name='addNewOrder') Add New
 		.col-sm-12(style={'margin-top':'10px'})
 			table#allOrdersTable.row-border.hover.order-column(style='width:100%;')
 				thead
@@ -24,9 +24,7 @@ include layouts/header
 script(type='text/javascript').
 	$(document).ready(function() {
 
-
 		$('#addNewOrder').click(function(e){   window.location.href = '/orders/add';  });
-
 
 		var table = $('#allOrdersTable').DataTable( {
 				"dServerSide": true,

@@ -15,7 +15,7 @@ include mixins/modal-select-product
 							button.btn.btn-primary.fa.fa-save(type='button' data-toggle="modal" data-target=".save-record")
 
 			.editAdSection
-				button.btn.btn-primary.btn-sm#addNewProduct(type='button' name='addNewProduct') Add New Product
+			
 				+orderbody(project,keywords)
 
 
@@ -69,7 +69,7 @@ script(type='text/javascript').
 		} );
 
 		//- $('#orderItemsTable').on( 'click', 'tbody td', function () {
-		//- 	orderItemsTable.cell( this ).edit();
+		//- 	orderItemsTable.cell( this ).edit();  // EP: for edit need to use the edit_plugin!
 		//- });
 
 		$('#productTable tbody').on( 'click', 'tr', function () {
@@ -142,12 +142,17 @@ script(type='text/javascript').
 				"lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
 				"bPaginate": true,
 				"bLengthChange": false,
-				"columns": [ 
-					{"data": "ItemNumber","width": "15%"},
-					{"data": "Description","width": "35%"},
-					{"data": "Price","width": "10%"},
-					{"data": "Qty","width": "10%"},
-					{"data": "Total","width": "20%"},
+				"aoColumns": [ 
+					{"mDataProp": "ItemNumber","width": "15%"},
+					{"mDataProp": "Description","width": "35%"},
+					{"mDataProp": "Price","width": "10%"},
+					{"mDataProp": "Qty","width": "10%"},
+					{"mDataProp": "Total", "width": "20%",
+						mRender: function(data, type, row){	
+								var iData = $.fn.dataTable.render.number(',', '.', 2, '$').display(row.Qty * row.Price);
+								return iData;
+							}
+					},
 					{"targets": -1,
 						"data": null,
 						 "defaultContent": "<a style='margin-left:1em;' id='edit' class='fa fa-pencil' href=''></a></a><a style='margin-left:1em;' id='remove' class='fa fa-trash' href=''></a>"  
@@ -156,30 +161,27 @@ script(type='text/javascript').
 		});
 
 
+		//- var orderItemsTable = $('#orderItemsTable').DataTable( {
+		//- 		"lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+		//- 		"bPaginate": true,
+		//- 		"bLengthChange": false,
+		//- 		"columns": [ 
+		//- 			{"data": "ItemNumber","width": "15%"},
+		//- 			{"data": "Description","width": "35%"},
+		//- 			{"data": "Price","width": "10%"},
+		//- 			{"data": "Qty","width": "10%"},
+		//- 			{"data": "Total","width": "20%"},
+		//- 			{"targets": -1,
+		//- 				"data": null,
+		//- 				 "defaultContent": "<a style='margin-left:1em;' id='edit' class='fa fa-pencil' href=''></a></a><a style='margin-left:1em;' id='remove' class='fa fa-trash' href=''></a>"  
+		//- 				}
+		//- 			]									  
+		//- });
 
 
 
 	//-----------------------------
 
-		//- var table = $('#productTable').DataTable( {
-		//- 		"lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
-		//- 		"bPaginate": true,
-		//- 		"bLengthChange": false,
-		//- 		"ajax": {
-		//- 					"type"   : "GET",
-		//- 					"url"    : '/allproducts',
-		//- 					"dataSrc": ""
-		//- 					},
-		//- 		"columns": [ 
-		//- 			{"data": "ItemNumber","width": "20%"},
-		//- 			{"data": "Description","width": "80%"},
-		//- 			{"targets": -1,
-		//- 				"data": null,
-		//- 				 "defaultContent": "<a style='margin-left:1em;' id='edit' class='fa fa-pencil' href=''></a>"  
-		//- 				} 
-		//- 			]									  
-		//- });
-		
 		//- $('#productTable tbody').on( 'click', '#edit', function () {
 		//- 	var data = table.row( $(this).parents('tr') ).data();
 		//- 	window.location.href = '/orders/edit/' + data['OrderID'];

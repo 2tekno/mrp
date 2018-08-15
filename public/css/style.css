@@ -10,24 +10,9 @@ body {
     border-radius:0px;
 }
 
-#contactProjectTable th
-,#assistantForTable th
-,#projectCoFundersTable th
-,#subProjectManagersTable th
-,#finRepsTable th
-,#finOfficersTable th
-,#subProjectCoFundersTable th
-,#childInstitutionsTable th
-,#peopleByInstitutionTable th
-,#institutionCommRepTable th
-,#allInstitutionsTable th
-,#allContactsTable th
-,#allProjectsTable th
-,#projectPeopleRolesTable th
-,#institutionsByProjectTable th
-,#projectByInstitutionTable th
-,#projectByInsCoFundersTable th
-,#subProjectsTable th
+#orderItemsTable th
+,#allOrdersTable th
+,#productTable th
 {
     background:#005596;
     color: white;
