@@ -1,0 +1,67 @@
+include layouts/header
+
+.container(style={'margin-top':'80px', 'margin-bottom': '70px'})
+	
+	.row
+
+		.col-sm-12(style={'margin-top':'10px'})
+			button.btn.btn-primary.btn-sm.fa.fa-plus#addNewProduct(type='button' name='addNewProduct') Add New
+		.col-sm-12(style={'margin-top':'10px'})
+			table#allProductsTable.row-border.hover.order-column(style='width:100%;')
+				thead
+					tr
+						th Item Number
+						th Product Description
+						th
+					tbody
+
+
+
+script(type='text/javascript').
+	$(document).ready(function() {
+
+		$('#addNewProduct').click(function(e){   window.location.href = '/products/add';  });
+
+		var table = $('#allProductsTable').DataTable( {
+				"dServerSide": true,
+				"bProcessing": true,
+				"sAjaxSource": "/allproductsSS",
+				"sServerMethod": "GET",
+				"sAjaxDataProp": "aaData",
+				"aoColumns": [
+					{"mData": "ItemNumber","width": "20%"},
+					{"mData": "Description","width": "70%"},
+					{"targets": -1,
+						"mData": null,
+						 "defaultContent": "<a style='margin-left:1em;' id='edit' class='fa fa-pencil' href=''></a>"  
+						} 
+				]
+		});
+
+		
+		$('#allProductsTable tbody').on( 'click', '#edit', function () {
+			var data = table.row( $(this).parents('tr') ).data();
+
+			alert(data['Id']);
+			//window.location.href = '/products/edit/' + data['ProductID'];
+
+			return false;
+		} );
+
+	
+
+		$('#allProductsTable tbody').on( 'click', 'tr', function () {
+				if ( $(this).hasClass('selected') ) {
+					$(this).removeClass('selected');
+				}
+				else {
+					table.$('tr.selected').removeClass('selected');
+					$(this).addClass('selected');
+				}
+			} );
+		
+		
+	
+	});
+
+	

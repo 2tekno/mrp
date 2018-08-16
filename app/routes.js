@@ -1,22 +1,29 @@
 
 var users = require('../models/user');
 var orders = require('./orders');
+var products = require('./products');
+
 
 
 module.exports = function(app, passport) {
 
 
   app.get('/orders/add', orders.renderAddNewOrder);
+  app.get('/products/add', products.renderAddNewProduct);
 
   app.get('/orders', function(req, res) {
     res.render('orders');
   });
 
+  app.get('/products', function(req, res) {
+    res.render('products');
+  });
+
   app.get('/allorders', orders.allorders);
-  app.get('/allproducts', orders.allproducts);
+  app.get('/allproducts', products.allproducts);
   
   app.get('/allordersSS', orders.allordersSS);
-  app.get('/allproductsSS', orders.allproductsSS);
+  app.get('/allproductsSS', products.allproductsSS);
   app.post('/orders/save_new', orders.save_new);
 
 

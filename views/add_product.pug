@@ -1,0 +1,79 @@
+include layouts/header
+include mixins/modal-save-record
+include orderbody
+include mixins/modal-select-product
+
+.container.page-data
+	form.form-horizontal(id="add_product" method="post" action="/products/add" enctype="multipart/form-data")
+				
+		.div(style={'margin-top': '70px', 'margin-bottom': '70px'})
+			.form-group.form-row(style={'padding-left': '0px', 'padding-right': '0px'})
+				.col-md-12.mygroupheader
+					.h5 ADD PRODUCT
+						.btn-group-sm.float-right(role="group")
+							button.btn.btn-primary.fa.fa-arrow-left#cancel(type='button')
+							button.btn.btn-primary.fa.fa-save(type='button' data-toggle="modal" data-target=".save-record")
+
+			.editAdSection
+			
+				+productbody(product)
+
+
++modal-save-record
++modal-select-product
+
+script(type='text/javascript').
+	$(document).ready(function() {
+
+		var productRow;
+		var needToConfirm = false; 
+
+		$("body").on("click", "#cancel", cancel);	
+
+		$("select,input,textarea").change(function() {
+			needToConfirm = true;
+		});
+		$(window).on("beforeunload", function(e) {
+			if(needToConfirm==true) {
+				var message = "Are you sure you want to leave?";
+				e.returnValue = message;
+				return message;
+			}
+			return;
+		});
+
+
+		$('#save-confirm').click(function(e){
+			e.preventDefault();
+			Save(); 
+		});
+
+
+		function Save(){
+			needToConfirm = false; 
+			$(window).off("beforeunload");
+
+
+			var formData = 	$("#add_product").serializeArray();
+
+			var actionurl = '/products/save_new';
+			$.ajax({
+					url: actionurl,
+					type: 'post',
+					data: formData,
+					success: function(data) {
+						console.log('success');
+						window.location = data;
+					},
+					error: function() {	console.log('error');} 
+			});
+		};
+
+
+
+	});
+
+	function cancel() {
+		window.location.href = '/products';  
+	};
+

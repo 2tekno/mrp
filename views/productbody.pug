@@ -1,0 +1,29 @@
+mixin orderbody(product)
+
+
+	.tab-content(style={'margin-top':'20px'})
+		.tab-pane.active(id="overview" role="tabpanel")
+
+			fieldset.mygroup
+				legend.mygroup Main
+				.row
+					label.col-sm-2.col-form-label(for='ItemNumber' ) Itemm Number
+					.col-sm-4
+						input.form-control(type='text' id='ItemNumber' name='ItemNumber' value=((product) ? product.ItemNumber : '')   required  )
+
+				.row
+					label.col-sm-2.col-form-label(for='Description' ) Product Description
+					.col-sm-4
+						input.form-control(type='text' id='Description' name='Description' value=((product) ? product.Description : '')   required  )
+
+
+				//- .row
+				//- 	label.col-sm-2.col-form-label(for='Description') Product Description
+				//- 	.col-sm-4
+				//- 		select.form-control(id='OrderStatusID' name='OrderStatusID' data-placeholder='')
+				//- 			each item in orderStatus
+				//- 				option(value=item.ID selected=((order) ? product.Description==item.ID : NULL)) #{item.Description}
+		
+
+
+

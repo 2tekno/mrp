@@ -4,7 +4,6 @@ GO
 ALTER TABLE [dbo].[Products] DROP CONSTRAINT [DF_Products_CreateDate]
 GO
 
-/****** Object:  Table [dbo].[Products]    Script Date: 8/9/2018 2:36:05 PM ******/
 DROP TABLE [dbo].[Products]
 GO
 
@@ -50,7 +49,7 @@ CREATE TABLE [dbo].[Products](
 	[CustomFieldIDMember] [int] NULL,
  CONSTRAINT [PK_Products] PRIMARY KEY CLUSTERED 
 (
-	[Id] ASC
+	[ProductID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO

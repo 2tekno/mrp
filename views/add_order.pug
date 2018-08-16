@@ -16,7 +16,7 @@ include mixins/modal-select-product
 
 			.editAdSection
 			
-				+orderbody(project,keywords)
+				+orderbody(order)
 
 
 +modal-save-record
@@ -76,7 +76,7 @@ script(type='text/javascript').
 			var selectedRow = productTable.row(this).data();
 			productRow = {
 				OrderItemID: -1,
-				ProductId: selectedRow.Id,
+				ProductId: selectedRow.ProductID,
 				Description: selectedRow.Description,
 				ItemNumber: selectedRow.ItemNumber,
 				Price: selectedRow.Price,
