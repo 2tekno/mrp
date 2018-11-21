@@ -1,375 +1,225 @@
-var sql = require('mssql');
-var config = require('../config/database');
-var async = require('async');
-var logger = require('winston'); 
-var enums = require('../config/enums');
+var uuid = require("uuid");
+var mysql = require('mysql');
+var dbconfig = require('../config/database');
+var bcrypt = require('bcrypt-nodejs');
+var nodemailer = require("nodemailer");
+var config = require('../config/config.json')[process.env.NODE_ENV || 'development'];
 
-exports.changepassword = function(req, res){
-	var input = JSON.parse(JSON.stringify(req.body));
-    var userID = req.params.id  
-	var Password = input.Password.replace(/(')/g, "''");
-    var ChangePasswordWhenLogin = 0;
-
-	sql.connect(config.connection, function(err) {
-  		var request = new sql.Request();
-					
-      request.query("UPDATE users SET "+
-                    "Password='"+Password+"'"+
-                    ",ChangePasswordWhenLogin='"+ChangePasswordWhenLogin+"'"+
-   					" WHERE UserID='"+userID+"'", function(err, rows) {
+var connection;
+handleDisconnect();
 
 
-         if (err) logger.error("Error updating the users table: %s ", err);
-		 else {
-			  res.contentType('application/json');
-			  var data = JSON.stringify('/login');
-			  res.header('Content-Length', data.length);
-			  res.end(data);
-		  }
-	  });
-	});
-};
+
+let transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+        user: "2tekno@gmail.com",
+        pass: "E%355840"
+    },
+    tls: {
+      rejectUnauthorized: false
+  }
+});
 
 
-exports.form_security = function(req, res){
-    var input = JSON.parse(JSON.stringify(req.body));
-    var userID = req.user.UserID;
-    var formName = input.formName;
-    console.log('form_security userID==' + userID);
-    console.log('form_security formName==' + formName);
-    sql.connect(config.connection, function(err) {
-        var request = new sql.Request();
-        request.query("select FieldName,AccessLevel from vwFormAccessLevel WHERE userID = '"+userID +"' AND Form='"+ formName + "'", function(err, fieldList) {
-          if(err) logger.error("Error Selecting from vwFormAccessLevel table: %s ", err);
-          res.send(JSON.stringify(fieldList));
-        });
-    });
-};
 
+exports.createUser = function(ip,UserName,Email,Password,AccountType,IsActive,role,licType,licExpire, done) {
+      console.log('createUser');	
+      var userID = uuid.v4();
+      
+      var user = {
+        userID      : userID,
+        userName 	: UserName,
+        firstName   : '',
+        lastName 	: '',
+        active      : IsActive,
+        password 	: Password,
+        email 		: Email,
+        ipAddress	: ip,
+        role        : role,
+        accountType : AccountType,
+        licType     : licType,
+        licExpire   : licExpire,
+      };
 
-exports.renderNewUser = function(req, res) {
-    var accessLevelArray = enums.accessLevelArray;
-    var enumYesNo = enums.enumYesNo;
+      
 
-    sql.connect(config.connection, function(err) {
-      var request = new sql.Request();
-      var sqlString2 = "SELECT distinct A.UPGID,A.GroupName,RoleID = ISNULL(B.RoleID,0) FROM UsersPermissionGroup A LEFT JOIN UserGroupSecurity B ON B.UPGID = A.UPGID AND B.UserID='0'";
+    var insertQuery = "INSERT INTO user set ? ";
+    // var insertProfile = "INSERT INTO applicant set ? ";
+    var insertToEmailVerificationQuery = "INSERT INTO email_verification set ? ";
+		connection.query(insertQuery, [user], function(err, result) {
+      //connection.query(insertProfile, [profile], function(err, result) {
+        if (err) { console.log(err);  return done(null,null) } 
+        else {
+          if (IsActive==0) {
+                var generatedHash = bcrypt.hashSync(Email, null, null);
+                var host = config.host;
+                var verUrl = host+'verifyaccount?id='+generatedHash+'&email='+Email;
+                //var bccmails=["2tekno@gmail.com"];
+                let mailOptions = {
+                  from: '"MRP Manager" <support@mrpmanager.com>',
+                  to: Email,
+                  subject: 'Please confirm your Email account',
+                  html: 'Thanks for joining MRP Manager!<br><br> Please confirm that your email is correct to continue. Click the link below to get started:<br><br><a href="'+verUrl+'">Click here to verify</a>'+
+                  '<br><br>We are so excited to have you! <br><br>Sincerely,<br>The MRP Manager Team'
+                }
 
-        request.query(sqlString2, function(err, permissions) {
-           if(err) logger.error("Error Selecting from user permissions table: %s ", err);
-               
-            res.render('add_user', {
-                permissions: permissions,
-                accessLevelArray: accessLevelArray,
-                user: req.user,
-                enumYesNo: enumYesNo,
-                ChangePasswordWhenLogin: 1
-            });
-      });
-  });
+                var verObj = {
+                  userID: userID,
+                  email: Email,
+                  verification_code: generatedHash,
+                  was_used: 0,
+                };
+
+                transporter.sendMail(mailOptions, (error, info) => {
+                  connection.query(insertToEmailVerificationQuery, [verObj], function(err, result) { 
+                    if (error) { return console.log('transporter.sendMail == ' + error);  }
+                    console.log('Message sent: %s', info.messageId);
+
+                  });
+
+                });        
+            }
+          
+            return done(null, user);
+        }
+       //})
+    
+    })
+}
+
+exports.verifyaccount= function(req, res) {
+  console.log('id == ' + req.query.id);
+  console.log('email == ' + req.query.email);
+
+  var email = req.query.email;
+  var verCode = req.query.id;
+
+  connection.query("SELECT * FROM email_verification WHERE was_used=0 AND email='"+email+"' AND verification_code='"+verCode+"'", function (err, rows) {
+    if (err) return done(err)
+    if (rows.length==1) {
+        var userID = rows[0].userID;
+        var updateObj = { active: 1 };
+        var updateObj2 = { was_used: 1 };
+        var updateQuery = "UPDATE user set ? WHERE userID = ?";
+        var updateQuery2 = "UPDATE email_verification set ? WHERE userID = ?";
+        var deleteQuery = "DELETE FROM email_verification WHERE userID = ?";
+        connection.query(updateQuery, [updateObj,userID], function(err, result) {
+            if (err) {console.log(err);  }
+            else { 
+              connection.query(updateQuery2, [updateObj2,userID], function(err, result) {
+                connection.query(deleteQuery, [userID], function(err, result) {
+                  res.status(201).redirect('/local_login'); 
+                })
+              })
+            
+            }
+        })
+    }
+    else {res.status(201).redirect('/local_signup'); } 
+  })
+
 }
 
 
-exports.renderUser = function(req, res) {
-    var userID = req.params.id  
-    var accessLevelArray = enums.accessLevelArray;
-    var enumYesNo = enums.enumYesNo;
-
-    sql.connect(config.connection, function(err) {
-      var request = new sql.Request();
-      var sqlString = "SELECT * FROM users WHERE UserID='"+userID+"'";
-      var sqlString2 = "SELECT distinct A.UPGID,A.GroupName,RoleID = ISNULL(B.RoleID,0) FROM UsersPermissionGroup A LEFT JOIN UserGroupSecurity B ON B.UPGID = A.UPGID AND B.UserID='"+userID+"'";
-
-      request.query(sqlString, function(err,result) {
-        if(err) logger.error("Error Selecting from User table: %s ", err);
-        request.query(sqlString2, function(err, permissions) {
-           if(err) logger.error("Error Selecting from user permissions table: %s ", err);
-               
-            res.render('edit_user', {
-                data: result[0],
-                permissions: permissions,
-                accessLevelArray: accessLevelArray,
-                user: req.user,
-                enumYesNo: enumYesNo
-               
-            });
-      });
-      });
-  });
+exports.getAllUsers = function(done) {
+    connection.query('SELECT * FROM user', function (err, rows) {
+    if (err) return done(err)
+    done(null, rows)
+  })
 }
-
-exports.user_validate = function(req, res){
-	var input = JSON.parse(JSON.stringify(req.body));
-
-	console.log('*****user_validate == ' +JSON.stringify(req.body));
-
-	var UserName = input.UserName.replace(/(')/g, "''");
-	var Email = input.Email.replace(/(')/g, "''");
-
-	sql.connect(config.connection, function(err) {
-  		var request = new sql.Request();
-	
-		  request.query("SELECT Qty = count(*) FROM Users WHERE UserName = '" + UserName  + "'", function(err, data) {
-			if(err) logger.error("Error Selecting from users table: %s ", err);
-
-			res.send(JSON.stringify(data[0]));
-		  });
-	});
-};
-
-exports.save_edit = function(req, res){
-	var input = JSON.parse(JSON.stringify(req.body));
-    var userID = req.params.id  
-    var UserName = input.UserName.replace(/(')/g, "''");
-	var Password = input.Password.replace(/(')/g, "''");
-	var Email = input.Email.replace(/(')/g, "''");
-    var FName = input.FName.replace(/(')/g, "''");
-    var LName = input.LName.replace(/(')/g, "''");
-    var Inactive = input.Inactive == '1' ? 1 : 0;
-    var IsAdmin = input.IsAdmin == '1' ? 1 : 0;
-    var ChangePasswordWhenLogin = input.ChangePasswordWhenLogin == '1' ? 1 : 0;
-
-    console.log('input.IsAdmin == ' + input.IsAdmin);
-    console.log('IsAdmin == ' + IsAdmin);
-
-    var secLevelArray = [];
-    if (input.secLevelArray != null) {  secLevelArray = JSON.parse(input.secLevelArray);  }
-    
-    console.log('secLevelArray == ' + JSON.stringify(secLevelArray));
-    
-	sql.connect(config.connection, function(err) {
-  		var request = new sql.Request();
-					
-      request.query("UPDATE users SET "+
-                    " UserName='"+UserName+"'"+
-                    ",Password='"+Password+"'"+
-                    ",FName='"+FName+"'"+
-                    ",LName='"+LName+"'"+
-                    ",Email='"+Email+"'"+
-                    ",Inactive='"+Inactive+"'"+
-                    ",IsAdmin='"+IsAdmin+"'"+
-                    ",ChangePasswordWhenLogin='"+ChangePasswordWhenLogin+"'"+
-   					" WHERE UserID='"+userID+"'", function(err, rows) {
-
-         save_permissions(userID,secLevelArray);
-
-         if (err) logger.error("Error updating the users table: %s ", err);
-		 else {
-			  res.contentType('application/json');
-			  var data = JSON.stringify('/all_users');
-			  res.header('Content-Length', data.length);
-			  res.end(data);
-		  }
-	  });
-	});
-};
-
-
-function save_permissions(userID,secLevelArray) {
-    sql.connect(config.connection, function(err) {
-        var request = new sql.Request();
-        var qtyRec;
-        async.each(secLevelArray, function(obj, callback) {
-            var UPGID = obj.UPGID;
-            var RoleID = obj.RoleID;
-            console.log('save_permissions  *** userID == ' + userID);
-            console.log('save_permissions  *** UPGID == ' + UPGID);
-
-            request.query("SELECT Qty = count(*) FROM UserGroupSecurity WHERE UserID='"+userID+"' AND UPGID='"+UPGID+"'", function(err, data) {
-                if(err) logger.error("Error Selecting from UserGroupSecurity table: %s ", err);
-                qtyRec = data[0].Qty;
-                console.log('qtyRec == ' + qtyRec);
-                if( qtyRec == "0" ) {
-                    request.query("INSERT INTO UserGroupSecurity (UserID,UPGID,RoleID) VALUES ('" +
-                    userID +"','"+ UPGID +"','"+ RoleID +"') ", function(err, rows) {
-                        if (err) logger.error("Error inserting in UserGroupSecurity table: %s ", err);
-                    })  
-                    callback();
-                } else {
-                    request.query("UPDATE UserGroupSecurity SET "+
-                        "RoleID="+RoleID+" WHERE UserID='"+userID+"' AND UPGID='"+UPGID+"'", function(err, rows) {
-                            if (err) logger.error("Error updating of UserGroupSecurity table: %s ", err);
-                    })
-                    callback();
-                }
-            });
-            
-        }, function(err) {
-            if( err ) {
-              console.log('process failed');
-            } else {
-              console.log('data processed successfully');
-            }
-        });
-    });
-};
-
-exports.save_new = function(req, res){
-	var input = JSON.parse(JSON.stringify(req.body));
-	var userID = req.user.UserID;
-	//console.log(input);
-
-    var UserName = input.UserName.replace(/(')/g, "''");
-    var FName = input.FName.replace(/(')/g, "''");
-    var LName = input.LName.replace(/(')/g, "''");
-	var Password = input.Password.replace(/(')/g, "''");
-	var Email = input.Email.replace(/(')/g, "''");
-	var Inactive = input.Inactive == '1' ? 1 : 0;
-    var IsAdmin = input.IsAdmin == '1' ? 1 : 0;
-    var ChangePasswordWhenLogin = input.ChangePasswordWhenLogin == '1' ? 1 : 0;
-    
-    
-	sql.connect(config.connection, function(err) {
-  		var request = new sql.Request();
-					
-	  request.query("INSERT INTO users (UserName,Password,Email,Inactive,FName,LName,ChangePasswordWhenLogin,IsAdmin) values ('"+
-                    UserName+"','"+
-                    Password+"','"+
-                    Email+"','"+
-                    Inactive+"','"+
-                    FName+"','"+
-                    LName+"','"+
-                    ChangePasswordWhenLogin+"','"+
-					IsAdmin+
-					"'); SELECT SCOPE_IDENTITY() AS ID", function(err, rows) {
-
-		 if (err) logger.error("Error inserting into users table: %s ", err);
-		 else {
-			  res.contentType('application/json');
-			  var data = JSON.stringify('/all_users');
-			  res.header('Content-Length', data.length);
-			  res.end(data);
-		  }
-	  });
-	});
-};
-
-
-exports.user_permission_update = function(req, res){
-
-    var input = JSON.parse(JSON.stringify(req.body));
-    var UserID = input.userID || 0;
-    var secLevelArray = [];
-    if (input.secLevelArray != null) {  secLevelArray = JSON.parse(input.secLevelArray);  }
-    
-	console.log('UserID == ' + UserID);
-
-    sql.connect(config.connection, function(err) {
-        var request = new sql.Request();
-        var qtyRec;
-
-        async.each(secLevelArray, function(obj, callback) {
-            var UPGID = obj.UPGID;
-            var RoleID = obj.RoleID;
-            //console.log('UPGID == ' + UPGID);
-            request.query("SELECT Qty = count(*) FROM UserGroupSecurity WHERE UserID='"+UserID+"' AND UPGID='"+UPGID+"'", function(err, data) {
-                if(err) logger.error("Error Selecting from UserGroupSecurity table: %s ", err);
-                qtyRec = data[0].Qty;
-                console.log('qtyRec == ' + qtyRec);
-                if( qtyRec == "0" ) {
-                    request.query("INSERT INTO UserGroupSecurity (UserID,UPGID,RoleID) VALUES ('" +
-                        UserID +"','"+ UPGID +"','"+ RoleID +"') ", function(err, rows) {
-                        if (err) logger.error("Error inserting in UserGroupSecurity table: %s ", err);
-                    })  
-                    callback();
-                } else {
-                    request.query("UPDATE UserGroupSecurity SET "+
-                        "RoleID="+RoleID+" WHERE UserID='"+UserID+"' AND UPGID='"+UPGID+"'", function(err, rows) {
-                            if (err) logger.error("Error updating of UserGroupSecurity table: %s ", err);
-                    })
-                    callback();
-                }
-            });
-            
-        }, function(err) {
-            if( err ) {
-              console.log('A file failed to process');
-            } else {
-              console.log('All files have been processed successfully');
-            }
-        });
-
-        res.send('OK');
-    });
-
-};
-
-exports.all_users_data = function(req, res){
-    sql.connect(config.connection, function(err) {
-        var request = new sql.Request();
-        request.query('SELECT * FROM vwUsers', function(err, data) {
-        
-            if(err) console.log("Error Selecting : %s ", err);
-            res.send(data);
-        });
-    });
-};
-
-exports.user_permission_groups_data = function(req, res){
-    var userID = req.params.id;
-    sql.connect(config.connection, function(err) {
-        var request = new sql.Request();
-        request.query('SELECT distinct A.UPGID,A.GroupName,RoleID = ISNULL(B.RoleID,0) FROM UsersPermissionGroup A LEFT JOIN UserGroupSecurity B ON B.UPGID = A.UPGID AND B.UserID='+userID, function(err, data) {
-        
-            if(err) console.log("Error Selecting : %s ", err);
-            res.send(data);
-        });
-    });
-};
-
 
 exports.getUserByID = function(userId, done) {
-    sql.connect(config.connection, function(err) {
-      var request = new sql.Request();
-      var sqlString = "SELECT * FROM vwUsers WHERE UserID = '" +userId + "'";
+   connection.query('SELECT * FROM user WHERE userID = ?', userId, function (err, rows) {
+    if (err) return done(err)
+    if (rows.length==1) {
+        var user = {
+          userID : rows[0].userID,
+          userName: rows[0].userName,
+          email: rows[0].email,
+          role : rows[0].role,
+          active : rows[0].active,
+        };
+        return done(null, user);
+      }
+      else {return done(null, null);} 
+    })
+}
 
-      request.query(sqlString, function(err,result) {
-          if (err) return done(err);
-          if (result.length==1) {
-              //console.log(' result.UserName:  ' + result[0].UserName);
-              var user = {
-                  UserName: result[0].UserName,
-                  Email: result[0].Email,
-                  UserID : result[0].UserID,
-                  Password : result[0].Password,
-                  IsAdmin : result[0].IsAdmin,
-                  FName: result[0].FName,
-                  LName: result[0].LName,
-                  Inactive : result[0].Inactive,
-                  ChangePasswordWhenLogin: result[0].ChangePasswordWhenLogin
-              };
-              return done(null, user);
-          }   
-          else {return done(null, null);}     
-      });
-  });
+exports.getUser = function(userId) {
+   connection.query('SELECT * FROM user WHERE userID = ?', userId, function (err, rows) {
+    if (err) return done(err)
+    var user = {
+      userID : rows[0].userID,
+      userName: rows[0].userName,
+      email: rows[0].email,
+      role : rows[0].role,
+      active : rows[0].active,
+    };
+      return user;
+    })
+}
+
+exports.getUserByEmail = function(email, done) {
+	console.log('getUserByEmail looking for: ' + email);
+	
+   connection.query('SELECT * FROM user WHERE Email = ?', email, function (err, rows) {
+    if (err) return done(err)
+	  if (rows.length==1) {
+          var user = {
+            userID : rows[0].userID,
+            userName: rows[0].userName,
+            email: rows[0].email,
+            password : rows[0].password,
+            role : rows[0].role,
+            active : rows[0].active,
+          };
+          return done(null, user);
+    }
+    else {return done(null, null);} 
+  })
+}
+
+exports.getUserByUserName = function(UserName, Password, done) {
+	console.log('getUserByUserName looking for: ' + UserName);
+	
+   connection.query('SELECT * FROM user WHERE userName = ?', UserName, function (err, rows) {
+    if (err) return done(err)
+	  if (rows.length==1) {
+          var user = {
+            userID : rows[0].userID,
+            userName: rows[0].userName,
+            email: rows[0].email,
+            password : rows[0].password,
+            role : rows[0].role,
+            active : rows[0].active,
+          };
+          return done(null, user);
+    }
+    else {return done(null, null);} 
+  })
 }
 
 
-exports.getUserByName = function(name, Password, done) {
-    sql.connect(config.connection, function(err) {
-      var request = new sql.Request();
-      var sqlString = "SELECT * FROM users WHERE UserName = '" +name + "'";
+function handleDisconnect() {
+  connection = mysql.createConnection(dbconfig.connection); // Recreate the connection, since
+                                                  // the old one cannot be reused.
 
-      request.query(sqlString, function(err,result) {
-          if (err) return done(err);
-          if (result.length==1) {
-              //console.log(' result.length:  ' + result.length);
-              //console.log(' Password:  ' + result[0].Password);
-              var user = {
-                  UserName: result[0].UserName,
-                  Email: result[0].Email,
-                  UserID : result[0].UserID,
-                  Password : result[0].Password,
-                  IsAdmin : result[0].IsAdmin,
-                  FName: result[0].FName,
-                  LName: result[0].LName,
-                  Inactive : result[0].Inactive,
-                  ChangePasswordWhenLogin: result[0].ChangePasswordWhenLogin
-              };
-              return done(null, user);
-          }  
-          else {return done(null, null);}    
-      });
+  connection.connect(function(err) {              // The server is either down
+    if(err) {                                     // or restarting (takes a while sometimes).
+      console.log('error when connecting to db:', err);
+      setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,
+    }                                     // to avoid a hot loop, and to allow our node script to
+  });                                     // process asynchronous requests in the meantime.
+                                          // If you're also serving http, display a 503 error.
+  connection.on('error', function(err) {
+    console.log('db error', err);
+    if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
+      handleDisconnect();                         // lost due to either server restart, or a
+    } else {                                      // connnection idle timeout (the wait_timeout
+      throw err;                                  // server variable configures this)
+    }
   });
 }

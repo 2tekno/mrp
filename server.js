@@ -53,7 +53,6 @@ app.use(flash()); // use connect-flash for flash messages stored in session
 var logger = require("./app/logger");
 logger.debug("Overriding 'Express' logger");
 
-//require('./app/routes.js')(app);
 require('./app/routes.js')(app, passport); 
 
 app.get('*', function(req, res){
@@ -63,5 +62,5 @@ app.get('*', function(req, res){
 
 
 http.createServer(app).listen(app.get('port'), function(){
-  console.log('TFRI App server listening on port ' + app.get('port'));
+  console.log('MRP App server listening on port ' + app.get('port'));
 });

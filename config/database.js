@@ -1,12 +1,17 @@
 
 var connection = {
-    user: 'web_user',
-	password: 'E#355840',
-	server: 'localhost',
-	database: 'MRPTEST',
-	ssrs_url: 'http://10.9.2.199:80/ReportServer/Pages/ReportViewer.aspx?/Reports/TFRIReports/'
+	'host': '127.0.0.1',
+	'user': 'root',
+	'password': 'E#355840',
+	'database': 'mrp-dev',
+	'insecureAuth': 'true',
+	'multipleStatements': 'true'
 }
 
+	
 module.exports = {
-    'connection': connection
+    'connection': connection,
+    'path_for_upload': './public/uploads/',
+	
 };
+

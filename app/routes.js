@@ -37,27 +37,45 @@ module.exports = function(app, passport) {
  
    // LOGIN ===============================
     // show the login form
-    app.get('/login', function(req, res) {
-      res.render('login', { message: req.flash('loginMessage'), user: req.user});
-    });
-      
 
-    app.post('/login', passport.authenticate('local', {
-          successReturnToOrRedirect : '/', // redirect to the secure profile section
-          failureRedirect : '/login', // redirect back to the signup page if there is an error
-          failureFlash : true // allow flash messages
-      }),
-      function(req, res) {
-        console.log('req.session.returnTo = ' + req.session.returnTo);
-        res.redirect(req.session.returnTo || '/');
-        delete req.session.returnTo;
-    });
-
-    app.get('/logout', function(req, res) {
+    app.get('/logout', function (req, res){
       req.logout();
-      res.redirect('/');
-      
+      res.clearCookie('connect.sid');
+      res.render('layouts/header');
     });
+    
+  
+    app.get('/local_login', function(req, res) {
+      res.render('local_login', { message: req.flash('loginMessage'), user : req.user });
+    });
+  
+    app.post('/local_login', passport.authenticate('local-login', {
+          successReturnToOrRedirect : '/profile', 
+          failureRedirect : '/local_login', 
+          failureFlash : true 
+        }),function(req, res) {
+            res.redirect(req.session.returnTo || '/');
+            delete req.session.returnTo;
+    });
+  
+    app.get('/verification_email_sent', function (req, res){
+    res.render('verification_email_sent');
+    });
+  
+    app.get('/verifyaccount', users.verifyaccount);
+
+  // SIGNUP ==============================
+  app.get('/local_signup', function(req, res) {
+		res.render('local_signup', { message: req.flash('signupMessage') });
+	});
+
+	app.post('/local_signup', passport.authenticate('local-signup', {
+			successReturnToOrRedirect : '/verification_email_sent', 
+			failureRedirect : '/local_signup', 
+			failureFlash : true 
+		})
+	);
+
 }
 
 function isLoggedIn(req, res, next) {

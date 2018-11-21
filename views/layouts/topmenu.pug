@@ -22,8 +22,6 @@ mixin topmenu
 					.dropdown-menu.dropdown-menu-right(aria-labelledby='navbarDropdownMenuLink')
 						if (user)
 							a.dropdown-item(href='/logout') Logout
-							if (user.IsAdmin)
-								a.dropdown-item(href='/all_users') Security
 						else
-							a.dropdown-item(href='/login') Login
+							a.dropdown-item(href='/local_login') Login
 

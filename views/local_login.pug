@@ -1,0 +1,34 @@
+include layouts/header
+
+.container.page-data(style={'margin-top':'70px', 'margin-bottom': '70px'})
+	form(method='POST' action='/local_login' enctype='multipart/urlencoded')
+		
+		.row
+			.col-sm-4.mx-auto
+				.editAdSection  
+					h3 Log In
+
+				.editAdSection  
+					br
+					br
+					a(href="/auth/facebook") Facebook
+					br
+					br
+					a(href="/auth/google") Google	
+					br
+					br
+
+				.editAdFieldSet
+					input.form-control(type='text' id='UserName' name='UserName' placeholder='username / email')               
+					input.form-control(type='password' id='Password'  name='Password' placeholder='password')
+					button.btn.btn-primary.pull-right(type='submit' id='submit') Login 
+								
+				.editAdSection
+					br
+					br
+					a(href='/local_signup') Or create account
+					br
+					if (message.length > 0)
+						#alert
+							p= message
+			
