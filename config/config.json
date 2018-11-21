@@ -10,13 +10,13 @@
     "host": "http://localhost:4300/",
     "dialect": "mysql",
     "facebook": {
-      "clientID": "1649248768538705",
-      "clientSecret": "625d5f7e48eb857c2898228c803b9e79",
+      "clientID": "",
+      "clientSecret": "",
       "callbackURL": "http://localhost:8000/auth/facebook/callback"
      },
      "google": {
-      "clientID": "966177533712-6q60l5aup6dvrp8shn8ui62t0nn3cubk.apps.googleusercontent.com",
-      "clientSecret": "kY1yCWFY8YBTHZ0KhSQx7biF",
+      "clientID": "",
+      "clientSecret": "",
       "callbackURL": "http://localhost:8000/oauth2callback"
     }
 
