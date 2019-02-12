@@ -24,6 +24,64 @@ let transporter = nodemailer.createTransport({
 });
 
 
+exports.createCompany = function(company, done) {
+    console.log('createCompany ... ');	
+    var userID = uuid.v4();
+    
+    var user = {
+      userID    : userID,
+      userName 	: company.UserName,
+      firstName : '',
+      lastName 	: '',
+      active    : company.IsActive,
+      password 	: company.Password,
+      email 	: company.Email,
+      ipAddress	: company.ip,
+      role        : company.role,
+      accountType : company.AccountType,
+      licType     : company.licType,
+      licExpire   : company.licExpire,
+    };
+
+
+  var insertQuery = "INSERT INTO user set ? ";
+  var insertToEmailVerificationQuery = "INSERT INTO email_verification set ? ";
+      connection.query(insertQuery, [user], function(err, result) {
+      if (err) { console.log(err);  return done(null,null) } 
+      else {
+            var generatedHash = bcrypt.hashSync(Email, null, null);
+            var host = config.host;
+            var verUrl = host+'verifyaccount?id='+generatedHash+'&email='+Email;
+            //var bccmails=["2tekno@gmail.com"];
+            let mailOptions = {
+            from: '"MRP Manager" <support@mrpmanager.com>',
+            to: Email,
+            subject: 'Please confirm your Email account',
+            html: 'Thanks for joining MRP Manager!<br><br> Please confirm that your email is correct to continue. Click the link below to get started:<br><br><a href="'+verUrl+'">Click here to verify</a>'+
+            '<br><br>We are so excited to have you! <br><br>Sincerely,<br>The MRP Manager Team'
+            }
+
+            var verObj = {
+            userID: userID,
+            email: Email,
+            verification_code: generatedHash,
+            was_used: 0,
+            };
+
+            transporter.sendMail(mailOptions, (error, info) => {
+            connection.query(insertToEmailVerificationQuery, [verObj], function(err, result) { 
+                if (error) { return console.log('transporter.sendMail == ' + error);  }
+                console.log('Message sent: %s', info.messageId);
+
+            });
+
+            });        
+        
+          return done(null, user);
+      }
+  })
+}
+
 
 exports.createUser = function(ip,UserName,Email,Password,AccountType,IsActive,role,licType,licExpire, done) {
       console.log('createUser');	
@@ -47,10 +105,8 @@ exports.createUser = function(ip,UserName,Email,Password,AccountType,IsActive,ro
       
 
     var insertQuery = "INSERT INTO user set ? ";
-    // var insertProfile = "INSERT INTO applicant set ? ";
     var insertToEmailVerificationQuery = "INSERT INTO email_verification set ? ";
 		connection.query(insertQuery, [user], function(err, result) {
-      //connection.query(insertProfile, [profile], function(err, result) {
         if (err) { console.log(err);  return done(null,null) } 
         else {
           if (IsActive==0) {
@@ -82,11 +138,8 @@ exports.createUser = function(ip,UserName,Email,Password,AccountType,IsActive,ro
 
                 });        
             }
-          
             return done(null, user);
         }
-       //})
-    
     })
 }
 
@@ -97,10 +150,17 @@ exports.verifyaccount= function(req, res) {
   var email = req.query.email;
   var verCode = req.query.id;
 
+  // TODO: generate db name, create db and run script to create all tables etc.....
+  
+
+
+
   connection.query("SELECT * FROM email_verification WHERE was_used=0 AND email='"+email+"' AND verification_code='"+verCode+"'", function (err, rows) {
     if (err) return done(err)
     if (rows.length==1) {
         var userID = rows[0].userID;
+        var company_name = rows[0].company_name.toLowerCase();
+
         var updateObj = { active: 1 };
         var updateObj2 = { was_used: 1 };
         var updateQuery = "UPDATE user set ? WHERE userID = ?";
@@ -192,9 +252,10 @@ exports.getUserByUserName = function(UserName, Password, done) {
             userID : rows[0].userID,
             userName: rows[0].userName,
             email: rows[0].email,
-            password : rows[0].password,
-            role : rows[0].role,
-            active : rows[0].active,
+            password: rows[0].password,
+            role: rows[0].role,
+            active: rows[0].active,
+            company_name: rows[0].company_name,
           };
           return done(null, user);
     }
@@ -202,6 +263,27 @@ exports.getUserByUserName = function(UserName, Password, done) {
   })
 }
 
+exports.getUserByCompanyName = function(company_name, done) {
+	console.log('getUserByCompanyName looking for: ' + company_name);
+	
+   connection.query('SELECT * FROM user WHERE company_name = ?', company_name, function (err, rows) {
+    if (err) return done(err)
+	  if (rows.length==1) {
+          var user = {
+            userID : rows[0].userID,
+            userName: rows[0].userName,
+            email: rows[0].email,
+            password: rows[0].password,
+            role: rows[0].role,
+            active: rows[0].active,
+            company_name: rows[0].company_name,
+            db_name: rows[0].db_name,
+          };
+          return done(null, user);
+    }
+    else {return done(null, null);} 
+  })
+}
 
 function handleDisconnect() {
   connection = mysql.createConnection(dbconfig.connection); // Recreate the connection, since
